@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TopperBoard · India's Pay-to-Rank Leaderboard</title>
+<meta name="description" content="Bid to rank #1 in your category. Live leaderboards for influencers, coaching institutes, teachers, startups, creators and local businesses across India.">
+<meta property="og:title" content="TopperBoard · Who's #1 in India?">
+<meta property="og:description" content="Live pay-to-rank leaderboards. Highest bid takes the top spot. Starts at ₹99.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f6fb; --surface:#fff; --ink:#14112b; --muted:#6a6585; --line:#e7e4f0;
+  --brand:#4f2fd8; --brand-dk:#3a1fb0; --gold:#e9a400; --silver:#8d97ab; --bronze:#c0773b; --green:#0f8a4c;
+  --hero1:#14112b; --hero2:#2b1d78; --shadow:0 8px 30px rgba(20,17,43,.07);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d0b1c; --surface:#17142c; --ink:#f3f1fb; --muted:#a39dc0; --line:#2a2548; --brand:#8b72ff; --brand-dk:#6d52f0;
+  --hero1:#0d0b1c; --hero2:#24186a; --shadow:0 8px 30px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  --bg:#0d0b1c; --surface:#17142c; --ink:#f3f1fb; --muted:#a39dc0; --line:#2a2548; --brand:#8b72ff; --brand-dk:#6d52f0;
+  --hero1:#0d0b1c; --hero2:#24186a; --shadow:0 8px 30px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+h1,h2,h3,.disp{font-family:"Plus Jakarta Sans",Inter,sans-serif;letter-spacing:-.02em;margin:0;line-height:1.1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:13px 20px;font:600 15px Inter,sans-serif;cursor:pointer;text-decoration:none;transition:transform .1s,background .2s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-dk)}
+.btn-gold{background:var(--gold);color:#14112b}
+.btn-line{background:transparent;color:inherit;border:1.5px solid currentColor;opacity:.9}
+.btn[disabled]{opacity:.6;cursor:wait}
+
+/* header */
+header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--hero1) 92%,transparent);backdrop-filter:blur(10px);color:#fff}
+.nav{display:flex;align-items:center;justify-content:space-between;height:62px;gap:12px}
+.logo{font:800 21px "Plus Jakarta Sans",sans-serif;text-decoration:none;display:flex;align-items:center;gap:8px;color:#fff}
+.logo i{font-style:normal;background:var(--gold);color:#14112b;border-radius:8px;width:30px;height:30px;display:grid;place-items:center;font-size:16px}
+.nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-size:14px}
+.nav ul a{text-decoration:none;opacity:.75}.nav ul a:hover{opacity:1}
+@media(max-width:760px){.nav ul{display:none}}
+
+/* hero */
+.hero{background:radial-gradient(1200px 500px at 70% -10%,var(--hero2),var(--hero1) 60%);color:#fff;padding:56px 0 64px}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr}}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:6px 12px;border-radius:99px}
+.dot{width:8px;height:8px;border-radius:50%;background:#2ee08a;box-shadow:0 0 0 0 #2ee08a;animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.hero h1{font-size:clamp(38px,6.4vw,64px);font-weight:800;margin:18px 0 14px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p.lead{font-size:18px;opacity:.8;max-width:540px;margin:0 0 26px}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:34px;max-width:520px}
+.kpi .v{font:800 26px "Plus Jakarta Sans",sans-serif}
+.kpi .l{font-size:12px;opacity:.65;text-transform:uppercase;letter-spacing:.06em}
+.throne{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:22px}
+.throne h3{font-size:15px;opacity:.7;font-weight:600;margin-bottom:12px;font-family:Inter}
+.trow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.08)}
+.trow:first-of-type{border-top:0}
+.trow .c{font-size:22px;width:30px;text-align:center}
+.trow .n{flex:1;min-width:0}
+.trow .n b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .n span{font-size:12px;opacity:.6}
+.trow .a{font:700 16px "Plus Jakarta Sans";color:var(--gold)}
+
+/* categories */
+section{padding:52px 0}
+.sec-h{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.sec-h h2{font-size:clamp(26px,4vw,36px);font-weight:800}
+.sec-h p{margin:6px 0 0;color:var(--muted)}
+.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;margin-bottom:22px}
+.cat{flex:none;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:9px 15px;font:600 14px Inter;cursor:pointer;display:flex;gap:6px;align-items:center}
+.cat small{color:var(--muted);font-weight:500}
+.cat.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cat.on small{color:inherit;opacity:.7}
+.rule{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:10px 14px;margin-bottom:18px}
+.rule b{color:var(--ink)}
+.chase{color:var(--brand);font-weight:600;cursor:pointer;background:none;border:0;font:600 13px Inter;padding:0}
+
+/* podium */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:760px){.podium{grid-template-columns:1fr}}
+.pc{position:relative;background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:22px 20px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;min-height:220px;transition:transform .2s}
+.pc:hover{transform:translateY(-3px)}
+.pc.r1{border-color:var(--gold);box-shadow:0 10px 40px color-mix(in srgb,var(--gold) 25%,transparent)}
+.pc .medal{position:absolute;top:-14px;left:20px;font:800 13px "Plus Jakarta Sans";color:#fff;padding:5px 12px;border-radius:99px}
+.r1 .medal{background:var(--gold);color:#14112b}.r2 .medal{background:var(--silver)}.r3 .medal{background:var(--bronze)}
+.pc .top{display:flex;gap:12px;align-items:center;margin-top:4px}
+.av{flex:none;width:50px;height:50px;border-radius:14px;display:grid;place-items:center;color:#fff;font:800 21px "Plus Jakarta Sans"}
+.pc h3{font-size:19px;word-break:break-word}
+.pc .dom{font-size:12px;color:var(--muted)}
+.pc p{margin:0;color:var(--muted);font-size:14px;flex:1}
+.pc .foot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pc .amt{font:800 22px "Plus Jakarta Sans";color:var(--green)}
+.pc .visit{font-size:14px;padding:9px 14px}
+.pc.empty{align-items:center;justify-content:center;text-align:center;border-style:dashed;box-shadow:none;color:var(--muted)}
+.pc.empty .disp{font-size:18px;color:var(--ink)}
+
+/* list */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.li{display:grid;grid-template-columns:44px 36px 1fr auto;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.li:first-child{border-top:0}
+.li .rk{font:800 17px "Plus Jakarta Sans";color:var(--muted);text-align:center}
+.li .av{width:36px;height:36px;border-radius:10px;font-size:15px}
+.li .nm{min-width:0}
+.li .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .nm span{font-size:13px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .am{font:700 16px "Plus Jakarta Sans";color:var(--green)}
+.locked{font-size:12px;color:var(--muted);text-align:center;padding:10px;background:color-mix(in srgb,var(--brand) 6%,transparent)}
+
+/* bid */
+.bidgrid{display:grid;grid-template-columns:1.2fr .8fr;gap:22px}
+@media(max-width:860px){.bidgrid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+label:first-child{margin-top:0}
+input,select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:15px Inter}
+input:focus,select:focus{outline:none;border-color:var(--brand)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.amtbox{position:relative}.amtbox span{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted)}
+.amtbox input{padding-left:30px;font:700 20px "Plus Jakarta Sans"}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.quick button{border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:6px 12px;font:600 13px Inter;cursor:pointer}
+.err{color:#d23b3b;font-size:13px;min-height:18px;margin-top:10px}
+.small{font-size:12px;color:var(--muted)}
+.preview{background:radial-gradient(600px 300px at 80% 0,var(--hero2),var(--hero1));color:#fff;border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.preview .big{font:800 84px "Plus Jakarta Sans";line-height:1}
+.preview .big.gold{color:var(--gold)}
+.preview ul{margin:14px 0 0;padding-left:18px;opacity:.85;font-size:14px;line-height:1.8}
+
+/* how / faq */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.steps{grid-template-columns:1fr}}
+.step .n{width:38px;height:38px;border-radius:11px;background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand);display:grid;place-items:center;font:800 17px "Plus Jakarta Sans";margin-bottom:12px}
+.step h3{font-size:18px;margin-bottom:6px}
+.step p{margin:0;color:var(--muted);font-size:14px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:10px}
+summary{font-weight:600;cursor:pointer}
+details p{color:var(--muted);margin:10px 0 0}
+.cta-band{background:linear-gradient(120deg,var(--brand),#7b3fe4);color:#fff;border-radius:24px;padding:36px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.cta-band h2{font-size:clamp(24px,4vw,34px)}
+footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer nav a{margin-right:16px;text-decoration:none}footer nav a:hover{color:var(--ink)}
+
+/* modal + toast + banner */
+.modal{position:fixed;inset:0;background:rgba(8,6,20,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:60}
+.modal.open{display:flex}
+.modal .card{max-width:420px;width:100%;text-align:center}
+#qrBox{width:190px;height:190px;margin:16px auto;background:#fff;padding:10px;border-radius:14px;line-height:0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,140px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;transition:transform .3s;z-index:70;max-width:calc(100% - 32px)}
+.toast.show{transform:translate(-50%,0)}
+.banner{background:var(--gold);color:#14112b;text-align:center;font-size:13px;font-weight:600;padding:8px 16px}
+</style>
+</head>
+<body>
+<div class="banner" id="setupBanner" hidden>🚧 Launching soon. Bidding opens shortly.</div>
+<header>
+  <div class="wrap nav">
+    <a href="#" class="logo"><i>🏆</i>TopperBoard</a>
+    <ul>
+      <li><a href="#boards">Leaderboards</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#bid" class="btn btn-gold" style="padding:9px 16px;font-size:14px">Claim your rank</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span> Live rankings · India 🇮🇳</span>
+      <h1>Who's <em>#1</em> in India?<br>You decide.</h1>
+      <p class="lead">Live leaderboards for creators, coaching institutes, teachers, startups and local businesses. One simple rule: the highest bid takes the top spot.</p>
+      <div class="ctas">
+        <a href="#bid" class="btn btn-gold">Claim your rank from ₹99 →</a>
+        <a href="#boards" class="btn btn-line">View leaderboards</a>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="kTotal">₹0</div><div class="l">Total bids</div></div>
+        <div class="kpi"><div class="v" id="kCount">0</div><div class="l">Ranked profiles</div></div>
+        <div class="kpi"><div class="v" id="kTop">₹0</div><div class="l">Highest bid</div></div>
+      </div>
+    </div>
+    <div class="throne">
+      <h3>👑 Current #1 in each category</h3>
+      <div id="throne"></div>
+    </div>
+  </div>
+</div>
+
+<section id="boards">
+  <div class="wrap">
+    <div class="sec-h">
+      <div><h2>Leaderboards</h2><p>Pick a category. Top 3 get a featured card with a direct link.</p></div>
+    </div>
+    <div class="cats" id="cats" role="tablist"></div>
+    <div class="rule"><span>Ranked by bid amount · <b>highest bid = #1</b> · updates live</span><button class="chase" id="chase"></button></div>
+    <div class="podium" id="podium"></div>
+    <div class="list" id="list"></div>
+  </div>
+</section>
+
+<section id="bid" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-h"><div><h2>Claim your rank</h2><p>One-time payment. Your profile stays on the board; your rank moves as others bid.</p></div></div>
+    <div class="bidgrid">
+      <form class="card" id="form" novalidate>
+        <div class="two">
+          <div><label for="fCat">Category</label><select id="fCat"></select></div>
+          <div><label for="fName">Name / brand</label><input id="fName" maxlength="40" placeholder="e.g. Sharma Classes" autocomplete="organization"></div>
+        </div>
+        <label for="fUrl">Link (website, Instagram, YouTube…)</label>
+        <input id="fUrl" type="url" maxlength="300" placeholder="https://instagram.com/yourpage">
+        <label for="fTag">One-line description <span class="small">(optional)</span></label>
+        <input id="fTag" maxlength="80" placeholder="What makes you stand out?">
+        <label for="fAmt">Your bid</label>
+        <div class="amtbox"><span>₹</span><input id="fAmt" type="number" inputmode="numeric" min="99" step="1" value="99"></div>
+        <div class="quick" id="quick"></div>
+        <div class="err" id="fErr"></div>
+        <button class="btn btn-primary" style="width:100%" type="submit" id="fBtn">Pay &amp; claim rank</button>
+        <p class="small" style="margin:10px 0 0;text-align:center">Secure payment via UPI, cards &amp; netbanking. By continuing you agree to our <a href="terms.html">Terms</a> and <a href="refund.html">Refund Policy</a>.</p>
+      </form>
+      <div class="preview">
+        <div style="opacity:.75;font-size:14px">Your rank in <b id="pCat"></b></div>
+        <div class="big" id="pRank">#1</div>
+        <div id="pNote" style="opacity:.85"></div>
+        <ul>
+          <li>Top 3 get a featured card with a clickable link</li>
+          <li>Goes live automatically after payment</li>
+          <li>Outbid? Place a new bid any time</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-h"><div><h2>How it works</h2></div></div>
+    <div class="steps">
+      <div class="card step"><div class="n">1</div><h3>Choose a category</h3><p>Influencer, coaching, teacher, startup, fitness, food and more.</p></div>
+      <div class="card step"><div class="n">2</div><h3>Add your profile</h3><p>Your name, link and a one-line pitch. Takes 30 seconds.</p></div>
+      <div class="card step"><div class="n">3</div><h3>Place your bid</h3><p>Start at ₹99. To beat someone, bid at least ₹1 more.</p></div>
+      <div class="card step"><div class="n">4</div><h3>Go live</h3><p>Pay securely and your rank appears instantly. Top 3 get the spotlight.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sec-h"><div><h2>FAQ</h2></div></div>
+    <details><summary>How is the ranking decided?</summary><p>Purely by bid amount within each category. The highest bid is #1. If two bids are equal, the earlier one ranks higher. There is no voting, review or algorithm involved.</p></details>
+    <details><summary>Why is only the top 3 clickable?</summary><p>Top 3 profiles get a featured card with a direct link to their page. Everyone else is listed by name and bid. Want the link? Climb into the top 3.</p></details>
+    <details><summary>What happens if someone outbids me?</summary><p>Your profile stays on the board and moves down one place. You can place a new, higher bid any time to climb back.</p></details>
+    <details><summary>Do I get a refund if I'm outbid?</summary><p>No. A bid is a one-time payment for a listing on the board. Refunds are issued only if we remove a listing for breaking our content rules, as described in the <a href="refund.html">Refund Policy</a>.</p></details>
+    <details><summary>What is not allowed?</summary><p>Betting or gambling, adult content, dating or escort services, get-rich-quick or investment schemes, impersonation, hate speech, and anything illegal in India. Such listings are removed.</p></details>
+    <details><summary>Will I get an invoice?</summary><p>Yes. Your payment receipt is emailed by our payment partner. For GST invoices, write to us from the <a href="contact.html">Contact</a> page.</p></details>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap"><div class="cta-band">
+    <div><h2>The #1 spot is waiting.</h2><p style="margin:6px 0 0;opacity:.85">Someone will take it. Why not you?</p></div>
+    <a href="#bid" class="btn btn-gold">Claim your rank →</a>
+  </div></div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© <span id="yr"></span> TopperBoard · Digital advertising &amp; sponsored listings · Made in India 🇮🇳</div>
+    <nav><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="refund.html">Refunds</a><a href="contact.html">Contact</a></nav>
+  </div>
+</footer>
+
+<div class="modal" id="upiModal" role="dialog" aria-modal="true" aria-labelledby="mAmt">
+  <div class="card">
+    <h3 class="disp" style="font-size:30px" id="mAmt">₹99</h3>
+    <div class="small" id="mFor"></div>
+    <div id="qrBox"></div>
+    <a class="btn btn-primary" style="width:100%" id="mUpi" href="#">Open UPI app</a>
+    <p class="small">GPay · PhonePe · Paytm · BHIM<br>Keep the code <b id="mRef"></b> in the payment note.</p>
+    <p style="font-size:14px">Your listing goes live once the payment is verified.</p>
+    <button class="btn btn-line" style="width:100%;color:var(--ink)" data-close>Done</button>
+  </div>
+</div>
+<div class="modal" id="okModal" role="dialog" aria-modal="true">
+  <div class="card">
+    <div style="font-size:54px">🎉</div>
+    <h3 class="disp" style="font-size:26px;margin:6px 0">Payment successful!</h3>
+    <p class="small" id="okMsg">Your listing will appear on the board within a few seconds.</p>
+    <button class="btn btn-primary" style="width:100%" data-close>See the leaderboard</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="qrcode.js"></script>
+<script>
+/* =============== SETTINGS: sirf yahan bharna hai =============== */
+const CONFIG = {
+  SUPABASE_URL:      "",  // e.g. "https://abcd1234.supabase.co"
+  SUPABASE_ANON_KEY: "",  // Supabase > Project Settings > API > anon public
+  RAZORPAY_KEY_ID:   "",  // e.g. "rzp_live_xxxx" (automatic payments)
+  UPI_ID:            "",  // backup: e.g. "name@okaxis" (manual approval)
+};
+/* =============================================================== */
+
+const CATS=[
+  {id:"influencer",label:"Influencers",icon:"⭐"},
+  {id:"creator",label:"YouTubers & Creators",icon:"🎬"},
+  {id:"coaching",label:"Coaching Institutes",icon:"🎓"},
+  {id:"teacher",label:"Teachers & Tutors",icon:"📚"},
+  {id:"startup",label:"Startups",icon:"🚀"},
+  {id:"fitness",label:"Gyms & Fitness",icon:"💪"},
+  {id:"food",label:"Restaurants & Cafes",icon:"🍛"},
+  {id:"clinic",label:"Doctors & Clinics",icon:"🩺"},
+  {id:"local",label:"Local Businesses",icon:"🏪"},
+];
+const MIN=99, MAX=10000000;
+const DEMO=new URLSearchParams(location.search).has("demo");
+const LIVE=!!(CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
+const PAY_AUTO=LIVE&&!!CONFIG.RAZORPAY_KEY_ID;
+const PAY_UPI=LIVE&&!PAY_AUTO&&!!CONFIG.UPI_ID;
+const H={apikey:CONFIG.SUPABASE_ANON_KEY,Authorization:"Bearer "+CONFIG.SUPABASE_ANON_KEY,"Content-Type":"application/json"};
+const $=id=>document.getElementById(id);
+const inr=n=>"₹"+Number(n).toLocaleString("en-IN");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const host=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return""}};
+const PAL=["#4f2fd8","#0f8a4c","#d6336c","#0b7285","#e8590c","#7048e8","#c2255c","#1971c2"];
+const col=s=>PAL[[...s].reduce((h,c)=>h+c.charCodeAt(0),0)%PAL.length];
+const safeUrl=u=>/^https?:\/\//i.test(u)?u:"#";
+
+let all=[], cat=CATS[0].id;
+try{const h=location.hash.slice(1);if(CATS.some(c=>c.id===h))cat=h}catch(e){}
+
+function boardOf(c){return all.filter(x=>x.category===c).sort((a,b)=>b.amount-a.amount||(a.t-b.t))}
+
+async function load(){
+  if(DEMO){all=demoData();return render()}
+  if(!LIVE){$("setupBanner").hidden=false;return render()}
+  try{
+    const r=await fetch(CONFIG.SUPABASE_URL+"/rest/v1/listings?select=id,category,name,url,tagline,amount,paid_at&status=eq.paid&order=amount.desc&limit=2000",{headers:H});
+    if(!r.ok)throw new Error(r.status);
+    all=(await r.json()).map(x=>({...x,t:Date.parse(x.paid_at)||0}));
+  }catch(e){console.error("load failed",e)}
+  render();
+}
+
+function render(){
+  const total=all.reduce((s,x)=>s+x.amount,0);
+  $("kTotal").textContent=inr(total);$("kCount").textContent=all.length.toLocaleString("en-IN");
+  $("kTop").textContent=inr(all.reduce((m,x)=>Math.max(m,x.amount),0));
+  // throne
+  const th=CATS.map(c=>({c,top:boardOf(c.id)[0]})).sort((a,b)=>(b.top?.amount||0)-(a.top?.amount||0)).slice(0,6);
+  $("throne").innerHTML=th.map(({c,top})=>`<div class="trow"><div class="c">${c.icon}</div><div class="n"><b>${top?esc(top.name):"Unclaimed"}</b><span>${esc(c.label)}</span></div><div class="a">${top?inr(top.amount):"₹"+MIN}</div></div>`).join("");
+  // cats
+  $("cats").innerHTML=CATS.map(c=>{const b=boardOf(c.id);return `<button class="cat${c.id===cat?" on":""}" role="tab" aria-selected="${c.id===cat}" data-cat="${c.id}">${c.icon} ${esc(c.label)} <small>${b.length}</small></button>`}).join("");
+  // board
+  const b=boardOf(cat), C=CATS.find(c=>c.id===cat);
+  $("chase").textContent=b[0]?`Take #1 for ${inr(b[0].amount+1)} →`:`Be the first #1 for ${inr(MIN)} →`;
+  $("chase").dataset.v=b[0]?b[0].amount+1:MIN;
+  let pod="";
+  for(let i=0;i<3;i++){
+    const x=b[i];
+    if(!x){pod+=`<div class="pc empty r${i+1}"><span class="medal">#${i+1}</span><div style="font-size:30px">${C.icon}</div><div class="disp">Spot #${i+1} is open</div><div class="small">Claim it from ${inr(MIN)}</div><button class="btn btn-primary visit" data-bid="${MIN}">Claim #${i+1}</button></div>`;continue}
+    pod+=`<div class="pc r${i+1}"><span class="medal">${i===0?"👑 #1":"#"+(i+1)}</span>
+      <div class="top"><div class="av" style="background:${col(x.name)}">${esc(x.name[0].toUpperCase())}</div><div style="min-width:0"><h3>${esc(x.name)}</h3><div class="dom">${esc(host(x.url))}</div></div></div>
+      <p>${esc(x.tagline||"")}</p>
+      <div class="foot"><div class="amt">${inr(x.amount)}</div><a class="btn btn-primary visit" href="${esc(safeUrl(x.url))}" target="_blank" rel="sponsored noopener nofollow">Visit →</a></div></div>`;
+  }
+  $("podium").innerHTML=pod;
+  const rest=b.slice(3);
+  $("list").style.display=rest.length?"":"none";
+  $("list").innerHTML=rest.map((x,i)=>`<div class="li"><div class="rk">#${i+4}</div><div class="av" style="background:${col(x.name)}">${esc(x.name[0].toUpperCase())}</div><div class="nm"><b>${esc(x.name)}</b>${x.tagline?`<span>${esc(x.tagline)}</span>`:""}</div><div class="am">${inr(x.amount)}</div></div>`).join("")+(rest.length?`<div class="locked">🔒 Links unlock in the top 3</div>`:"");
+  // form
+  if(!$("fCat").options.length)$("fCat").innerHTML=CATS.map(c=>`<option value="${c.id}">${c.icon} ${esc(c.label)}</option>`).join("");
+  preview();
+}
+function rankFor(c,a){return boardOf(c).filter(x=>x.amount>=a).length+1}
+function preview(){
+  const c=$("fCat").value||cat, a=parseInt($("fAmt").value)||0, b=boardOf(c), r=rankFor(c,a);
+  $("pCat").textContent=CATS.find(x=>x.id===c).label;
+  $("pRank").textContent="#"+r;$("pRank").classList.toggle("gold",r===1);
+  $("pNote").textContent=a<MIN?`Minimum bid is ${inr(MIN)}`:r===1?"👑 You'd hold the top spot":r<=3?`Top 3 · add ${inr(b[r-2].amount-a+1)} to move up`:`Add ${inr(b[2].amount-a+1)} to enter the top 3`;
+  const q=[[ "Minimum",MIN]];
+  if(b[2])q.push(["Top 3",b[2].amount+1]);
+  q.push(["👑 #1",b[0]?b[0].amount+1:MIN]);
+  const seen=new Set();
+  $("quick").innerHTML=q.filter(([,v])=>!seen.has(v)&&seen.add(v)).map(([l,v])=>`<button type="button" data-v="${v}">${l} · ${inr(v)}</button>`).join("");
+}
+function pick(c,amt){cat=c;$("fCat").value=c;if(amt)$("fAmt").value=amt;render();location.hash="bid";setTimeout(()=>$("fName").focus(),300)}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-cat],[data-v],[data-bid],#chase,[data-close]");if(!t)return;
+  if(t.dataset.cat){cat=t.dataset.cat;$("fCat").value=cat;history.replaceState(null,"","#"+cat);render()}
+  else if(t.id==="chase")pick(cat,t.dataset.v);
+  else if(t.dataset.bid)pick(cat,t.dataset.bid);
+  else if(t.dataset.v){$("fAmt").value=t.dataset.v;preview()}
+  else if(t.hasAttribute("data-close")){t.closest(".modal").classList.remove("open");if(t.closest("#okModal"))location.hash="boards"}
+});
+$("fAmt").addEventListener("input",preview);$("fCat").addEventListener("change",preview);
+
+function validate(){
+  const d={category:$("fCat").value,name:$("fName").value.trim(),url:$("fUrl").value.trim(),tagline:$("fTag").value.trim(),amount:parseInt($("fAmt").value)};
+  if(d.url&&!/^https?:\/\//i.test(d.url))d.url="https://"+d.url;
+  if(!d.name)return[null,"Please enter a name"];
+  if(!/^https?:\/\/[^\s/$.?#][^\s]*\.[^\s]+$/i.test(d.url))return[null,"Please enter a valid link"];
+  if(!(d.amount>=MIN))return[null,`Minimum bid is ${inr(MIN)}`];
+  if(d.amount>MAX)return[null,`Maximum bid is ${inr(MAX)}`];
+  return[d,""];
+}
+const btn=$("fBtn");
+function busy(on,txt){btn.disabled=on;btn.textContent=on?txt:"Pay & claim rank"}
+
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const[d,err]=validate();$("fErr").textContent=err;if(!d)return;
+  if(!LIVE||DEMO||(!PAY_AUTO&&!PAY_UPI)){$("fErr").textContent="Bidding opens very soon. Please check back shortly!";return}
+  if(PAY_AUTO)return payRazorpay(d);
+  return payUpi(d);
+});
+
+function loadScript(src){return new Promise((ok,no)=>{if(window.Razorpay)return ok();const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+async function payRazorpay(d){
+  busy(true,"Starting secure payment…");
+  try{
+    await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+    const r=await fetch(CONFIG.SUPABASE_URL+"/functions/v1/create-order",{method:"POST",headers:H,body:JSON.stringify(d)});
+    const o=await r.json();
+    if(!r.ok)throw new Error(o.error||"Could not start payment");
+    busy(false);
+    new Razorpay({
+      key:CONFIG.RAZORPAY_KEY_ID,order_id:o.order_id,amount:o.amount,currency:"INR",
+      name:"TopperBoard",description:`${CATS.find(c=>c.id===d.category).label} listing`,
+      notes:{ref:o.ref},theme:{color:"#4f2fd8"},
+      handler:()=>{ $("form").reset();$("fAmt").value=MIN;$("okModal").classList.add("open");pollFor(o.ref) },
+      modal:{ondismiss:()=>toast("Payment cancelled")}
+    }).open();
+  }catch(e){console.error(e);$("fErr").textContent=e.message||"Something went wrong. Please try again.";busy(false)}
+}
+async function pollFor(ref){
+  for(let i=0;i<10;i++){await new Promise(r=>setTimeout(r,3000));const before=all.length;await load();if(all.length>before){toast("🎉 You're on the board!");return}}
+  $("okMsg").textContent="Payment received. Your listing will appear shortly.";
+}
+async function payUpi(d){
+  const ref="TB"+Math.random().toString(36).slice(2,8).toUpperCase();
+  busy(true,"Saving…");
+  try{
+    const r=await fetch(CONFIG.SUPABASE_URL+"/rest/v1/listings",{method:"POST",headers:{...H,Prefer:"return=minimal"},body:JSON.stringify({...d,tagline:d.tagline||null,ref})});
+    if(!r.ok)throw new Error(await r.text());
+  }catch(e){console.error(e);$("fErr").textContent="Something went wrong. Please try again.";busy(false);return}
+  busy(false);
+  const upi=`upi://pay?pa=${encodeURIComponent(CONFIG.UPI_ID)}&pn=TopperBoard&am=${d.amount}&cu=INR&tn=${encodeURIComponent(ref)}`;
+  $("mAmt").textContent=inr(d.amount);$("mFor").textContent=`${d.name} · ${CATS.find(c=>c.id===d.category).label} · rank #${rankFor(d.category,d.amount)}`;
+  $("mRef").textContent=ref;$("mUpi").href=upi;
+  const qr=qrcode(0,"M");qr.addData(upi);qr.make();$("qrBox").innerHTML=qr.createSvgTag({scalable:true,margin:0});
+  $("upiModal").classList.add("open");$("form").reset();$("fAmt").value=MIN;preview();
+}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3200)}
+
+function demoData(){
+  const rows=[["coaching","Vidya Point Academy","JEE & NEET coaching, Kota",42000],["coaching","Shiksha Kendra","Board exam specialists",18500],["coaching","BrightPath Classes","Small batches, big results",9999],["coaching","Gyan Ganga Institute","",2100],["coaching","Pioneer Tutorials","Since 2009",499],
+  ["influencer","Riya Travels","Budget travel across India",25000],["influencer","Fit with Kabir","Home workouts in 20 min",12000],["startup","HisaabBook","Billing for kirana stores",15000],["creator","Desi Tech Talks","Gadgets in Hindi",8800],["food","Sharma Ji Ki Chai","Since 1987",3100],["teacher","Meena Ma'am Maths","Class 9-12 maths",5100]];
+  return rows.map(([category,name,tagline,amount],i)=>({category,name,tagline,amount,url:"https://example.com/"+i,t:i}));
+}
+$("yr").textContent=new Date().getFullYear();
+load();setInterval(()=>{if(LIVE&&!DEMO&&!document.hidden)load()},20000);
+</script>
+</body>
+</html>
