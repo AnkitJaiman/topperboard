@@ -622,7 +622,7 @@ async function payUpi(d,rank){
     if(!r.ok)throw new Error("HTTP "+r.status);
   }catch(e){console.error(e);busy(false);$("fErr").textContent="Something went wrong and nothing was saved. No money was taken. Please try again.";return}
   busy(false);
-  const upi=`upi://pay?pa=${encodeURIComponent(CONFIG.UPI_ID)}&pn=TopperBoard&am=${d.amount}&cu=INR&tn=${encodeURIComponent(ref)}`;
+  const upi=`upi://pay?pa=${String(CONFIG.UPI_ID).replace(/[^a-zA-Z0-9.@_-]/g,"")}&pn=TopperBoard&am=${d.amount}&cu=INR&tn=${encodeURIComponent(ref)}`;
   $("mAmt").textContent=inr(d.amount);$("mAmt2").textContent=inr(d.amount);
   $("mFor").textContent=`${d.name} · ${catOf(d.category).label} · rank #${rank} right now`;
   $("mRef").textContent=ref;$("mUpi").href=upi;
