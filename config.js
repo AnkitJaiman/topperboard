@@ -36,7 +36,7 @@ window.TB_CONFIG = {
     });
     document.querySelectorAll("[data-cfg-mail]").forEach(function (el) {
       if (C.EMAIL) { el.href = "mailto:" + C.EMAIL + (el.getAttribute("data-cfg-mail") || ""); if (!el.textContent.trim()) el.textContent = C.EMAIL; }
-      else { el.removeAttribute("href"); if (!el.textContent.trim()) el.textContent = missing; }
+      else { el.href = "contact.html"; if (!el.textContent.trim()) el.textContent = missing; }
     });
     document.querySelectorAll("[data-cfg-if]").forEach(function (el) {
       el.hidden = !C[el.getAttribute("data-cfg-if")];

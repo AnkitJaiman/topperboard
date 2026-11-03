@@ -68,6 +68,8 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--hero1
 .nav ul a{text-decoration:none;opacity:.8}.nav ul a:hover{opacity:1}
 .nav-cta{white-space:nowrap;padding:9px 16px;font-size:14px;min-height:44px}
 @media(max-width:760px){.nav ul{display:none}}
+.mnav{display:none}
+@media(max-width:760px){.mnav{display:flex;justify-content:space-around;border-top:1px solid rgba(255,255,255,.1);font-size:13px}.mnav a{flex:1;text-align:center;text-decoration:none;opacity:.85;padding:12px 4px;min-height:44px}[id]{scroll-margin-top:120px}}
 @media(max-width:360px){.logo{font-size:18px}.nav-cta{padding:8px 12px;font-size:13px}}
 
 /* hero */
@@ -220,6 +222,7 @@ footer nav a{text-decoration:none;display:inline-block;padding:12px 0}footer nav
     </nav>
     <a href="#bid" class="btn btn-gold nav-cta">Claim your rank</a>
   </div>
+  <nav class="mnav" aria-label="Sections"><a href="#boards">Boards</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="#about">About</a></nav>
 </header>
 
 <main id="top">
@@ -406,7 +409,7 @@ const catOf=id=>CATS.find(c=>c.id===id)||CATS[0];
 const mail=()=>CONFIG.EMAIL||"us via the Contact page";
 
 let all=[], cat=CATS[0].id, loaded=!LIVE, loadFailed=false, shownRank=null;
-const fromHash=()=>{const h=decodeURIComponent(location.hash.slice(1));return CATS.some(c=>c.id===h)?h:null};
+const fromHash=()=>{let h=location.hash.slice(1);try{h=decodeURIComponent(h)}catch(e){return null}return CATS.some(c=>c.id===h)?h:null};
 cat=fromHash()||cat;
 
 function boardOf(c){return all.filter(x=>x.category===c).sort((a,b)=>b.amount-a.amount||(a.t-b.t))}
@@ -418,7 +421,7 @@ async function load(){
     const r=await fetch(CONFIG.SUPABASE_URL+"/rest/v1/listings?select=id,category,name,url,tagline,amount,paid_at&status=eq.paid&order=amount.desc&limit=1000",{headers:H});
     if(!r.ok)throw new Error("HTTP "+r.status);
     const d=await r.json();
-    all=d.map(x=>({...x,t:Date.parse(x.paid_at)||0}));
+    all=d.map(x=>({...x,t:Date.parse(x.paid_at)||Number.MAX_SAFE_INTEGER}));
     loaded=true;loadFailed=false;
   }catch(e){console.error("load failed",e);loadFailed=true}
   render();
@@ -497,7 +500,8 @@ function preview(){
   }else{
     const r=rankFor(c,s.a);shownRank=r;
     $("pRank").textContent="#"+r;$("pRank").classList.toggle("gold",r===1);
-    $("pNote").textContent=r===1?"👑 You'd hold the top spot":r<=3?`Top 3 · add ${inr(b[r-2].amount-s.a+1)} to move up`:`Add ${inr(b[2].amount-s.a+1)} to enter the top 3`;
+    const need=r===1?0:r<=3?b[r-2].amount-s.a+1:b[2].amount-s.a+1;
+    $("pNote").textContent=r===1?"👑 You'd hold the top spot":s.a+need>MAX?`Highest rank available at the ${inr(MAX)} maximum`:r<=3?`Top 3 · add ${inr(need)} to move up`:`Add ${inr(need)} to enter the top 3`;
     if(!btn.dataset.idle)btn.textContent=`Pay ${inr(s.a)} & claim #${r}`;
   }
   const q=[["Minimum",MIN]];
@@ -526,7 +530,7 @@ $("cats").addEventListener("keydown",e=>{
 });
 const catsEnd=()=>{const c=$("cats");c.classList.toggle("end",c.scrollLeft+c.clientWidth>=c.scrollWidth-4)};
 $("cats").addEventListener("scroll",catsEnd,{passive:true});window.addEventListener("resize",catsEnd);
-window.addEventListener("hashchange",()=>{const h=fromHash();if(h&&h!==cat){cat=h;render()}});
+window.addEventListener("hashchange",()=>{const h=fromHash()||(location.hash?null:CATS[0].id);if(h&&h!==cat){cat=h;render()}});
 $("fAmt").addEventListener("input",()=>{preview();clearInvalid()});
 $("fCat").addEventListener("change",()=>{cat=$("fCat").value;history.replaceState(null,"","#"+cat);render()});
 
@@ -548,6 +552,7 @@ function validate(){
   clearInvalid();
   const d={category:$("fCat").value,name:$("fName").value.trim().replace(/\s+/g," "),url:$("fUrl").value.trim(),tagline:$("fTag").value.trim().replace(/\s+/g," ")};
   if(!d.name)return fail("fName","Please enter a name or brand");
+  if(/^(mailto|tel|sms|javascript|data|file|ftp|whatsapp|intent):/i.test(d.url))return fail("fUrl","Please enter a web link (https://…), not an email, phone or app link");
   if(d.url&&!/^[a-z][a-z0-9+.-]*:\/\//i.test(d.url))d.url="https://"+d.url;
   if(!/^https?:\/\/[^\s/$.?#][^\s]*\.[^\s]+$/i.test(d.url))return fail("fUrl","Please enter a valid web link starting with https://");
   if(d.url.length>300)return fail("fUrl","That link is too long (max 300 characters)");
@@ -562,10 +567,11 @@ $("form").addEventListener("submit",async e=>{
   if(btn.disabled)return;
   if(!CAN_PAY){$("fErr").textContent=DEMO?"This is a preview with sample data. Payments are switched off.":"Bidding hasn't opened yet. Please check back soon!";return}
   const[d]=validate();if(!d)return;
+  const before=shownRank;
   busy(true,"Checking latest rankings…");
   await load();
   if(!loaded||loadFailed){busy(false);$("fErr").textContent="We couldn't load the latest rankings. Please try again in a moment.";return}
-  const before=shownRank, now=rankFor(d.category,d.amount);
+  const now=rankFor(d.category,d.amount);
   busy(false);
   if(before!==null&&now!==before){$("fErr").textContent=`Heads up: rankings just changed. This bid now gets #${now}. Press Pay again to continue, or raise your bid.`;return}
   if(PAY_AUTO)return payRazorpay(d,now);
@@ -593,7 +599,7 @@ async function payRazorpay(d,rank){
     name:"TopperBoard",description:`Sponsored listing · ${catOf(d.category).label}`,
     notes:{ref:o.ref},theme:{color:"#4f2fd8"},
     handler:()=>{
-      $("form").reset();$("fAmt").value=MIN;$("fCat").value=d.category;cat=d.category;
+      $("form").reset();$("fAmt").value=MIN;$("fCat").value=d.category;cat=d.category;preview();
       $("okTitle").textContent="Payment successful";
       $("okMsg").textContent="Your listing will appear on the board in about a minute. Razorpay has emailed you a receipt.";
       $("okRef").textContent=o.ref;openModal($("okModal"));pollFor(d,o.ref);
