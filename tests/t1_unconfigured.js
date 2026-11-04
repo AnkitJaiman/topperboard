@@ -46,8 +46,8 @@ const { chromium, record, newPage, errs, save, SITE } = require('./lib');
   const net = page._requests.filter(r => !/fonts/.test(r.url));
   record('U-12', 'No auto-refresh calls when unconfigured', '0 requests after 21s', net.length, net.length === 0);
 
-  const cfgFill = await page.evaluate(() => [...document.querySelectorAll('[data-cfg-if]')].map(e => e.hidden));
-  record('U-15', 'Config-dependent bits hidden when empty ([data-cfg-if])', 'all hidden', JSON.stringify(cfgFill), cfgFill.every(Boolean));
+  const cfgFill = await page.evaluate(() => [...document.querySelectorAll('[data-cfg-if]')].map(e => ({ k: e.dataset.cfgIf, ok: e.hidden === !window.TB_CONFIG[e.dataset.cfgIf] })));
+  record('U-15', 'Config-dependent bits shown only when that setting is filled ([data-cfg-if])', 'hidden iff empty', JSON.stringify(cfgFill), cfgFill.every(x => x.ok));
 
   const E = errs(page);
   record('U-13', 'Console/page errors (unconfigured)', 'none', E.length ? E.join(' ; ') : 'none', E.length === 0);

@@ -15,13 +15,13 @@ window.TB_CONFIG = {
   UPI_ID: "",              // backup only, e.g. "name@okaxis" (manual approval)
 
   // --- Business details (legal pages, About, footer) — launch se pehle zaroori ---
-  LEGAL_NAME: "",          // e.g. "Ankit Jaiman" ya registered business name
-  CITY: "",                // e.g. "Dehradun"
-  ADDRESS: "",             // full postal address
-  EMAIL: "",               // support + grievance email
+  LEGAL_NAME: "Ankit Jaiman",          // e.g. "Ankit Jaiman" ya registered business name
+  CITY: "Jaipur",                // e.g. "Dehradun"
+  ADDRESS: "97 Goplapuri Sanganer, near Sector 3, Pratap Nagar, Jaipur, Rajasthan 302033",             // full postal address
+  EMAIL: "ankitjaiman882@gmail.com",               // support + grievance email
   PHONE: "",               // support phone (optional)
   WHATSAPP: "",            // e.g. "919876543210" (country code, no +) (optional)
-  GRIEVANCE_OFFICER: "",   // Grievance Officer ka naam
+  GRIEVANCE_OFFICER: "Ankit Jaiman",   // Grievance Officer ka naam
   GSTIN: "",               // sirf agar GST registered ho
 };
 
