@@ -11,7 +11,7 @@ window.TB_CONFIG = {
   SUPABASE_ANON_KEY: "",   // "anon public" key (NEVER the service_role key)
 
   // --- Payments ---
-  RAZORPAY_KEY_ID: "",     // e.g. "rzp_live_xxxx" -> automatic payments
+  RAZORPAY_KEY_ID: "rzp_live_TwD7YO7xMyTajX", // public key id (the SECRET never goes here)
   UPI_ID: "",              // backup only, e.g. "name@okaxis" (manual approval)
 
   // --- Business details (legal pages, About, footer) — launch se pehle zaroori ---
