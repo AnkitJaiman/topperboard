@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://ankitjaiman.github.io/topperboard/sitemap.xml
