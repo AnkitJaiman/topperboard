@@ -1,0 +1,84 @@
+import { q, q1 } from "./db";
+import { getSettings, Settings } from "./settings";
+import { istDate } from "./util";
+
+export type Row = {
+  id: number; url: string; domain: string; title: string; description: string; favicon_url: string | null;
+  category: string; amount: number; total_amount: number; clicks_total: number; created_at: string; rank: number;
+};
+
+const COLS = `l.id::int as id, l.url, l.domain, l.title, l.description, l.favicon_url, l.category, l.total_amount::int as total_amount,
+  l.clicks_total, l.created_at`;
+
+/** All-time board: cumulative verified bids. Ties go to whoever reached the total first. */
+export async function allTime(category?: string, limit = 100): Promise<Row[]> {
+  return q<Row>(
+    `select ${COLS}, l.total_amount::int as amount,
+            row_number() over (order by l.total_amount desc, l.last_bid_at asc)::int as rank
+       from listings l
+      where l.status = 'active' and l.total_amount > 0 and ($1::text is null or l.category = $1)
+      order by l.total_amount desc, l.last_bid_at asc
+      limit $2`, [category ?? null, limit]);
+}
+
+/** Board for one IST calendar day: only what each listing paid that day. */
+export async function dayBoard(day: string, category?: string, limit = 100): Promise<Row[]> {
+  return q<Row>(
+    `select ${COLS}, d.amount::int as amount,
+            row_number() over (order by d.amount desc, d.last_paid_at asc)::int as rank
+       from daily_totals d join listings l on l.id = d.listing_id
+      where d.day = $1::date and l.status = 'active' and ($2::text is null or l.category = $2)
+      order by d.amount desc, d.last_paid_at asc
+      limit $3`, [day, category ?? null, limit]);
+}
+
+export const todayBoard = (category?: string, limit?: number) => dayBoard(istDate(), category, limit);
+
+export async function archiveDays(limit = 60): Promise<{ day: string; listings: number; amount: number }[]> {
+  return q(`select to_char(day,'YYYY-MM-DD') as day, count(*)::int as listings, sum(amount)::int as amount
+              from daily_totals group by day order by day desc limit $1`, [limit]);
+}
+
+export type Activity = { id: number; type: string; amount: number; rank: number; created_at: string; listing_id: number; title: string; domain: string };
+export async function recentActivity(limit = 12): Promise<Activity[]> {
+  return q<Activity>(`select a.id::int as id, a.type, a.amount, a.rank, a.created_at, a.listing_id::int as listing_id, l.title, l.domain
+                        from activity a join listings l on l.id = a.listing_id
+                       where l.status = 'active' order by a.id desc limit $1`, [limit]);
+}
+
+export async function listing(id: number) {
+  return q1<Row & { rank: number; clicks_today: number; first_paid_at: string }>(
+    `select ${COLS}, l.total_amount::int as amount, l.first_paid_at, listing_rank(l.id) as rank,
+            (select count(*)::int from clicks c where c.listing_id = l.id and c.day = (now() at time zone 'Asia/Kolkata')::date) as clicks_today
+       from listings l where l.id = $1 and l.status = 'active'`, [id]);
+}
+
+export async function categoryCounts(): Promise<Record<string, { n: number; top: number }>> {
+  const rows = await q<{ category: string; n: number; top: number }>(
+    `select category, count(*)::int as n, max(total_amount)::int as top from listings where status='active' group by category`);
+  return Object.fromEntries(rows.map((r) => [r.category, { n: r.n, top: r.top }]));
+}
+
+/** Price/position quote. All rules are enforced again on the server when the order is created. */
+export type Quote = { rank: number; categoryRank: number; claimOne: number; min: number; total: number; settings: Settings };
+
+export async function quote(amount: number, category: string, listingId?: number): Promise<Quote> {
+  const s = await getSettings();
+  let own = 0, ownCat = category;
+  if (listingId) {
+    const l = await q1<{ total_amount: number; category: string }>(
+      `select total_amount::int as total_amount, category from listings where id=$1 and status='active'`, [listingId]);
+    if (l) { own = l.total_amount; ownCat = l.category; }
+  }
+  const total = own + amount;
+  const r = await q1<{ above: number; above_cat: number; top: number | null }>(
+    `select count(*) filter (where total_amount >= $1)::int as above,
+            count(*) filter (where total_amount >= $1 and category = $2)::int as above_cat,
+            max(total_amount)::int as top
+       from listings where status='active' and total_amount > 0 and ($3::bigint is null or id <> $3)`,
+    [total, ownCat, listingId ?? null]);
+  const top = r?.top ?? 0;
+  const min = listingId ? s.min_increment : s.min_bid;
+  const claimOne = Math.max(min, top ? top + s.min_increment - own : s.min_bid);
+  return { rank: (r?.above ?? 0) + 1, categoryRank: (r?.above_cat ?? 0) + 1, claimOne, min, total, settings: s };
+}

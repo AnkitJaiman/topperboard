@@ -1,8 +1,0 @@
-# Used when deploying with the Supabase CLI.
-# (If you deploy from the Supabase dashboard editor, switch "Enforce JWT verification" OFF for both functions by hand.)
-
-[functions.create-order]
-verify_jwt = false
-
-[functions.razorpay-webhook]
-verify_jwt = false
