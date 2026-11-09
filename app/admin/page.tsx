@@ -36,7 +36,7 @@ export default async function Admin({ searchParams }: { searchParams: { msg?: st
   ]);
 
   return (
-    <div style={{ display: "grid", gap: 24 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <h1 style={{ fontSize: 26 }}>Admin · Topper Board</h1>
         <form method="post" action="/api/admin/logout"><button className="btn ghost" type="submit">Log out</button></form>

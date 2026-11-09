@@ -21,7 +21,7 @@ export default async function ListingPage({ params, searchParams }: { params: { 
   const c = categoryByName(l.category);
   const inr = (n: number) => "₹" + Number(n).toLocaleString("en-IN");
   return (
-    <div style={{ maxWidth: 760, display: "grid", gap: 24 }}>
+    <div style={{ maxWidth: 760, display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 24 }}>
       {searchParams.new && <div className="okmsg" role="status">Payment verified. Your listing is live at #{l.rank}.</div>}
       {c && <p className="crumb" style={{ margin: 0 }}><a href={`/c/${c.slug}`}>{c.code} · {c.name}</a></p>}
       <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
