@@ -27,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN">
       <body>
+        <a className="skip" href="#main">Skip to content</a>
         <header className="hdr">
           <div className="wrap">
             <Link href="/" className="brand"><span className="mark" aria-hidden><i /><i /><i /></span>TOPPER BOARD</Link>
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <FavFix />
         <VisitBeacon />
-        <main className="page"><div className="wrap">{children}</div></main>
+        <main className="page" id="main" tabIndex={-1}><div className="wrap">{children}</div></main>
         <footer className="ftr">
           <div className="wrap">
             <div>© {new Date().getFullYear()} Topper Board · Founded by Ankit Jaiman, Jaipur · All positions are paid placements</div>

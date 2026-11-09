@@ -8,7 +8,7 @@ export default function TodayMini({ rows }: { rows: BoardRow[] }) {
     <section aria-label="Today's ranking">
       <div className="side-h"><h2 className="sec-title">Today&apos;s ranking</h2><a href="/daily">See all</a></div>
       {rows.length ? (
-        <ol className="mini">
+        <ol className="mini" aria-label="Top 5 today">
           {rows.slice(0, 5).map((r) => (
             <li key={r.id}>
               <span className="mrk">#{r.rank}</span>

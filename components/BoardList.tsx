@@ -36,14 +36,14 @@ export default function BoardList({ rows, amountLabel = "Total bid", empty }: { 
         const c = categoryByName(r.category);
         return (
           <li key={r.id} className={`item${r.rank <= 3 ? " top" : ""}`}>
-            <span className="rk" aria-label={`Rank ${r.rank}`}>#{r.rank}</span>
-            <a href={`/go/${r.id}`} target="_blank" rel="sponsored noopener" aria-label={`Visit ${r.title} (opens in a new tab)`} className="logo-link">
+            <span className="rk"><span className="sr">Rank </span>#{r.rank}</span>
+            <a href={`/go/${r.id}`} target="_blank" rel="sponsored noopener" tabIndex={-1} aria-hidden="true" className="logo-link">
               <Fav src={r.favicon_url} domain={r.domain} big />
             </a>
             <div className="info">
               <div className="t-row">
-                <a className="t" href={`/go/${r.id}`} target="_blank" rel="sponsored noopener">{r.title}</a>
-                <b className="price" title={amountLabel}>{inr(r.amount)}</b>
+                <a className="t" href={`/go/${r.id}`} target="_blank" rel="sponsored noopener">{r.title}<span className="sr"> (opens in a new tab)</span></a>
+                <b className="price"><span className="sr">{amountLabel}: </span>{inr(r.amount)}</b>
               </div>
               {r.description ? <div className="d">{r.description}</div> : null}
               <div className="meta">
@@ -51,7 +51,7 @@ export default function BoardList({ rows, amountLabel = "Total bid", empty }: { 
                 <span>{ago(r.created_at)}</span>
                 <span>{r.domain}</span>
                 <span>{r.clicks_total.toLocaleString("en-IN")} clicks</span>
-                <a href={`/l/${r.id}`} className="details">details</a>
+                <a href={`/l/${r.id}`} className="details">details<span className="sr"> for {r.title}</span></a>
               </div>
             </div>
           </li>

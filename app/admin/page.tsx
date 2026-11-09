@@ -53,7 +53,7 @@ export default async function Admin({ searchParams }: { searchParams: { msg?: st
 
       <section id="settings" className="card pad">
         <h2 className="sec-title">Bid settings</h2>
-        <form method="post" action="/api/admin/settings" className="tabs" style={{ alignItems: "end" }}>
+        <form method="post" action="/api/admin/settings" className="row flex" style={{ alignItems: "end", gap: 12 }}>
           <label className="small">Minimum bid (₹)<input className="input" name="min_bid" type="number" defaultValue={s.min_bid} min={1} required /></label>
           <label className="small">Minimum increment (₹)<input className="input" name="min_increment" type="number" defaultValue={s.min_increment} min={1} required /></label>
           <label className="small">Max single payment (₹)<input className="input" name="max_payment" type="number" defaultValue={s.max_payment} min={100} required /></label>
@@ -66,7 +66,7 @@ export default async function Admin({ searchParams }: { searchParams: { msg?: st
         <div className="tabs">
           {["", "paid", "review", "created", "failed"].map((k) => <a key={k} className={`tab${(searchParams.show || "") === k ? " on" : ""}`} href={`/admin${k ? `?show=${k}` : ""}#payments`}>{k || "all"}</a>)}
         </div>
-        <div className="tscroll"><table className="t">
+        <p className="small muted phone-only">Tables scroll sideways.</p><div className="tscroll" tabIndex={0} role="region" aria-label="Scrollable table"><table className="t">
           <thead><tr><th>#</th><th>Listing</th><th>Type</th><th>Amount</th><th>Status</th><th>Razorpay</th><th>Created</th><th>Paid</th></tr></thead>
           <tbody>{payments.map((p) => (
             <tr key={p.id}><td>{p.id}</td><td>{p.title}</td><td>{p.kind}</td><td>{inr(p.amount)}</td>
@@ -79,10 +79,10 @@ export default async function Admin({ searchParams }: { searchParams: { msg?: st
 
       <section id="listings" className="card pad">
         <h2 className="sec-title">Listings</h2>
-        <div className="tscroll"><table className="t">
+        <p className="small muted phone-only">Tables scroll sideways.</p><div className="tscroll" tabIndex={0} role="region" aria-label="Scrollable table"><table className="t">
           <thead><tr><th>Rank</th><th>Listing</th><th>Total</th><th>Clicks</th><th>Edit</th><th>Action</th></tr></thead>
           <tbody>{listings.map((l) => (
-            <tr key={l.id} style={{ opacity: l.status === "active" ? 1 : 0.55 }}>
+            <tr key={l.id} className={l.status === "active" ? "" : "removed-row"}>
               <td>{l.rank ? `#${l.rank}` : l.status}</td>
               <td><b>{l.title}</b><div className="small muted">{l.domain} · id {l.id}</div></td>
               <td>{inr(l.total)}</td><td>{l.clicks_total}</td>
@@ -94,14 +94,14 @@ export default async function Admin({ searchParams }: { searchParams: { msg?: st
                   <select className="input" name="category" defaultValue={l.category} aria-label="Category">
                     {CATEGORIES.map((c) => <option key={c.slug} value={c.name}>{c.name}</option>)}
                   </select>
-                  <button className="btn ghost" type="submit">Save</button>
+                  <button className="btn ghost" type="submit" aria-label={`Save changes to ${l.title}`}>Save</button>
                 </form>
               </td>
               <td>
                 <form method="post" action="/api/admin/listings">
                   <input type="hidden" name="id" value={l.id} />
                   <input type="hidden" name="action" value={l.status === "active" ? "remove" : "restore"} />
-                  <button className="btn ghost" type="submit">{l.status === "active" ? "Remove" : "Restore"}</button>
+                  <button className="btn ghost" type="submit" aria-label={`${l.status === "active" ? "Remove" : "Restore"} ${l.title}`}>{l.status === "active" ? "Remove" : "Restore"}</button>
                 </form>
               </td>
             </tr>

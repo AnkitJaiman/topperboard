@@ -22,7 +22,7 @@ export default async function BoardPage({ category, view }: { category?: Categor
     <>
       <CategoryPills active={category?.slug ?? null} view={view} />
       <ModeTabs base={base} view={view} />
-      <BidBox key={name || "all"} settings={q.settings} claimOne={q.claimOne} enabled={razorpayConfigured()} fixedCategory={name ?? null} />
+      <BidBox key={name || "all"} settings={q.settings} claimOne={name ? q.categoryClaimOne : q.claimOne} enabled={razorpayConfigured()} fixedCategory={name ?? null} />
       <div className="grid">
         <Board key={`${view}-${name || "all"}`} initial={rows} view={view} category={name ?? null} />
         <aside className="side">

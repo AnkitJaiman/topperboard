@@ -17,7 +17,7 @@ function text(a: Activity) {
 
 export default function ActivityFeed({ items }: { items: Activity[] }) {
   return (
-    <aside aria-label="Latest activity">
+    <section aria-label="Latest activity">
       <h2 className="sec-title">Latest activity</h2>
       {items.length ? (
         <ul className="act-list">
@@ -29,6 +29,6 @@ export default function ActivityFeed({ items }: { items: Activity[] }) {
           ))}
         </ul>
       ) : <p className="small muted" style={{ margin: 0 }}>Nothing yet. Every verified bid shows up here.</p>}
-    </aside>
+    </section>
   );
 }

@@ -89,7 +89,8 @@ export async function categoryCounts(): Promise<Record<string, { n: number; top:
 }
 
 /** Price/position quote. All rules are enforced again on the server when the order is created. */
-export type Quote = { rank: number; categoryRank: number; claimOne: number; min: number; total: number; settings: Settings };
+/** claimOne = price of #1 overall; categoryClaimOne = price of #1 within the category. */
+export type Quote = { rank: number; categoryRank: number; claimOne: number; categoryClaimOne: number; min: number; total: number; settings: Settings };
 
 export async function quote(amount: number, category: string, listingId?: number): Promise<Quote> {
   const s = await getSettings();
@@ -100,14 +101,17 @@ export async function quote(amount: number, category: string, listingId?: number
     if (l) { own = l.total_amount; ownCat = l.category; }
   }
   const total = own + amount;
-  const r = await q1<{ above: number; above_cat: number; top: number | null }>(
+  const r = await q1<{ above: number; above_cat: number; top: number | null; cat_top: number | null }>(
     `select count(*) filter (where total_amount >= $1)::int as above,
             count(*) filter (where total_amount >= $1 and category = $2)::int as above_cat,
-            max(total_amount)::int as top
+            max(total_amount)::int as top,
+            (max(total_amount) filter (where category = $2))::int as cat_top
        from listings where status='active' and total_amount > 0 and ($3::bigint is null or id <> $3)`,
     [total, ownCat, listingId ?? null]);
   const top = r?.top ?? 0;
   const min = listingId ? s.min_increment : s.min_bid;
   const claimOne = Math.max(min, top ? top + s.min_increment - own : s.min_bid);
-  return { rank: (r?.above ?? 0) + 1, categoryRank: (r?.above_cat ?? 0) + 1, claimOne, min, total, settings: s };
+  const catTop = r?.cat_top ?? 0;
+  const categoryClaimOne = Math.max(min, catTop ? catTop + s.min_increment - own : s.min_bid);
+  return { rank: (r?.above ?? 0) + 1, categoryRank: (r?.above_cat ?? 0) + 1, claimOne, categoryClaimOne, min, total, settings: s };
 }

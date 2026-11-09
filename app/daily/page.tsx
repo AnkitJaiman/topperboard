@@ -17,8 +17,8 @@ export default async function Daily({ searchParams }: { searchParams: { date?: s
       <h1 className="page-h">Daily</h1>
       <p className="lede">One board per India calendar day, ranked by what listings paid that day. Past days stay here for good.</p>
       <form className="row flex" method="get" action="/daily" style={{ marginBottom: 20 }}>
-        <input className="input" type="date" name="date" defaultValue={day} max={today} aria-label="Date" style={{ width: "auto" }} />
-        <select className="input" name="category" defaultValue={cat?.slug || ""} aria-label="Category" style={{ width: "auto", maxWidth: 280 }}>
+        <input className="input" type="date" name="date" defaultValue={day} max={today} aria-label="Date" style={{ width: "auto", maxWidth: "100%" }} />
+        <select className="input" name="category" defaultValue={cat?.slug || ""} aria-label="Category" style={{ width: "auto", maxWidth: "min(280px, 100%)" }}>
           <option value="">All categories</option>
           {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
         </select>

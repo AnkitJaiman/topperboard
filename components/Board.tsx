@@ -17,6 +17,7 @@ export default function Board({ initial, view: initialView = "all", category: in
   const [category, setCategory] = useState<string | null>(initialCategory);
   const [rows, setRows] = useState(initial);
   const [loading, setLoading] = useState(false);
+  const [live, setLive] = useState(true);
 
   async function load(v: View, c: string | null) {
     setLoading(true);
@@ -27,9 +28,10 @@ export default function Board({ initial, view: initialView = "all", category: in
   }
   useEffect(() => {
     if (view !== initialView || category !== initialCategory) load(view, category);
+    if (!live) return;
     const t = setInterval(() => { if (!document.hidden) load(view, category); }, 30000);
     return () => clearInterval(t);
-  }, [view, category]); // eslint-disable-line
+  }, [view, category, live]); // eslint-disable-line
 
   return (
     <section aria-label="Leaderboard">
@@ -40,11 +42,13 @@ export default function Board({ initial, view: initialView = "all", category: in
           <div className="tabs-dd"><CategorySelect allowAll value={category} onChange={setCategory} /></div>
         </div>
       )}
+      <div className="board-note"><span>All positions are paid placements, ranked by {view === "all" ? "total bid" : "what was paid today (IST)"}.</span>
+        <button type="button" className="linkbtn small" onClick={() => setLive(!live)} aria-pressed={!live}>{live ? "Pause live updates" : "Resume live updates"}</button></div>
       <div style={{ opacity: loading ? 0.6 : 1 }}>
         <BoardList rows={rows} amountLabel={view === "all" ? "Total bid" : "Paid today"}
           empty={view === "today" ? "Nobody has claimed a rank today. The first bid today takes #1 on the Today board." : undefined} />
       </div>
-      <p className="note">{view === "all" ? "Ranked by total verified bids. Equal totals: whoever got there first ranks higher." : "Counts only what each listing paid today (India time). Resets at midnight IST."} All positions are paid placements.</p>
+      <p className="note">{view === "all" ? "Equal totals: whoever got there first ranks higher." : "Today resets at midnight IST. Past days are in the Daily archive."}</p>
     </section>
   );
 }

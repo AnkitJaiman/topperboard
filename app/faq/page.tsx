@@ -8,8 +8,8 @@ export default async function Faq() {
   const s = await getSettings();
   const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
   const items: [string, React.ReactNode][] = [
-    ["How do I claim a position?", <>On the home page, paste your website link, choose a category, set your bid with the − / + buttons and press <b>Claim</b>. The button shows the rank you'll get. Pay with Razorpay and your listing appears once the payment is verified.</>],
-    ["How do I take #1?", <>The home page headline always shows the current price of #1: the top total plus {inr(s.min_increment)}.</>],
+    ["How do I claim a position?", <>On the home page, paste your website link, choose a category, set your bid with the − / + buttons and press <b>Claim rank</b>. The headline shows the rank your bid gets. Pay with Razorpay and your listing appears once the payment is verified.</>],
+    ["How do I take #1?", <>The home page headline starts at the current price of #1: the top total plus {inr(s.min_increment)}. On a category page it starts at the price of #1 in that category.</>],
     ["How do I increase my bid?", <>Open your listing (click its title on the board) and use <b>Increase bid</b>. You pay only the extra amount, and it is added to your total.</>],
     ["How are rankings decided?", <>Only by verified bid amounts. All-time uses total bids. Today uses what was paid today (IST). Equal totals: whoever got there first ranks higher.</>],
     ["How do payments work?", <>Through Razorpay: UPI, debit and credit cards, net banking and wallets. Razorpay emails you a receipt. Your rank changes only after we verify the payment.</>],
