@@ -293,3 +293,18 @@ test("All public pages render", async () => {
   const cats = await api("/categories");
   assert.equal((cats.text.match(/href="\/c\//g) || []).length, 30);
 });
+
+test("Visitors are counted once per person per day; About shows live numbers", async () => {
+  const h = { "x-forwarded-for": "44.44.44.44", "user-agent": "Mozilla/5.0 Visitor" };
+  for (let i = 0; i < 3; i++) assert.equal((await api("/api/visit", { method: "POST", headers: h })).status, 204);
+  await api("/api/visit", { method: "POST", headers: { "x-forwarded-for": "55.55.55.55", "user-agent": "Mozilla/5.0 Visitor" } });
+  await api("/api/visit", { method: "POST", headers: { "x-forwarded-for": "66.66.66.66", "user-agent": "Googlebot/2.1" } });
+  const n = (await db.query("select count(*)::int n from visits")).rows[0].n;
+  assert.equal(n, 2);
+  const about = await api("/about");
+  assert.equal(about.status, 200);
+  const rev = (await db.query("select coalesce(sum(amount),0)::int r from payments where status='paid'")).rows[0].r;
+  assert.ok(about.text.includes("₹" + rev.toLocaleString("en-IN")), "total bids shown");
+  assert.match(about.text, /visitors/);
+});
+

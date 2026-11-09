@@ -74,6 +74,14 @@ create table if not exists clicks (
 );
 create index if not exists clicks_day on clicks (day);
 
+-- Unique visitors: one row per anonymous visitor per IST day (salted daily hash, no IP stored)
+create table if not exists visits (
+  visitor_hash text not null,
+  day          date not null,
+  created_at   timestamptz not null default now(),
+  primary key (day, visitor_hash)
+);
+
 create table if not exists rate_limits (
   key          text not null,
   window_start timestamptz not null,
@@ -209,6 +217,7 @@ do $$ begin
     execute 'alter table activity enable row level security';
     execute 'alter table clicks enable row level security';
     execute 'alter table rate_limits enable row level security';
+    execute 'alter table visits enable row level security';
     execute 'alter table settings enable row level security';
   end if;
 end $$;

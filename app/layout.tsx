@@ -10,6 +10,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import NavLinks from "@/components/NavLinks";
 import FavFix from "@/components/FavFix";
+import VisitBeacon from "@/components/VisitBeacon";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <FavFix />
+        <VisitBeacon />
         <main className="page"><div className="wrap">{children}</div></main>
         <footer className="ftr">
           <div className="wrap">

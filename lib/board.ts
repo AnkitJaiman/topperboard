@@ -62,6 +62,26 @@ export async function summary(): Promise<{ listings: number; total: number; toda
   return r ?? { listings: 0, total: 0, today: 0 };
 }
 
+export type SiteStats = { visitors: number; revenue: number; topAmount: number; topTitle: string | null; topId: number | null;
+  listed: number; addedToday: number; revenueToday: number };
+
+/** Public numbers for the About page. */
+export async function siteStats(): Promise<SiteStats> {
+  const r = await q1<SiteStats>(
+    `with t as (select (now() at time zone 'Asia/Kolkata')::date as d),
+          top as (select id, title, total_amount from listings where status='active' and total_amount > 0
+                  order by total_amount desc, last_bid_at asc limit 1)
+     select (select count(*)::int from visits) as visitors,
+            (select coalesce(sum(amount),0)::int from payments where status='paid') as "revenue",
+            (select total_amount::int from top) as "topAmount",
+            (select title from top) as "topTitle",
+            (select id::int from top) as "topId",
+            (select count(*)::int from listings where status='active' and total_amount > 0) as listed,
+            (select count(*)::int from listings, t where status='active' and (first_paid_at at time zone 'Asia/Kolkata')::date = t.d) as "addedToday",
+            (select coalesce(sum(amount),0)::int from payments, t where status='paid' and (paid_at at time zone 'Asia/Kolkata')::date = t.d) as "revenueToday"`);
+  return r ?? { visitors: 0, revenue: 0, topAmount: 0, topTitle: null, topId: null, listed: 0, addedToday: 0, revenueToday: 0 };
+}
+
 export async function categoryCounts(): Promise<Record<string, { n: number; top: number }>> {
   const rows = await q<{ category: string; n: number; top: number }>(
     `select category, count(*)::int as n, max(total_amount)::int as top from listings where status='active' group by category`);
