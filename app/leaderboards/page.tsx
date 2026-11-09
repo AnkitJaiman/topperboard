@@ -9,8 +9,8 @@ export default async function Leaderboards() {
   const [rows, activity] = await Promise.all([allTime(undefined, 100), recentActivity(20)]);
   return (
     <>
-      <h1 style={{ fontSize: 30, marginBottom: 6 }}>Leaderboards</h1>
-      <p className="muted" style={{ marginTop: 0 }}>All-time and today, across all 30 categories. Want a spot? <a href="/" style={{ color: "var(--link)" }}>Claim a rank →</a></p>
+      <h1 className="page-h">Leaderboards</h1>
+      <p className="lede">All-time and today, across all 30 categories. Want a spot? <a href="/#claim" style={{ color: "var(--link)" }}>Claim a rank</a></p>
       <div className="grid"><Board initial={rows} /><ActivityFeed items={activity} /></div>
     </>
   );

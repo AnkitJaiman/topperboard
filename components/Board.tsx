@@ -33,8 +33,8 @@ export default function Board({ initial, initialCategory = null, lockCategory = 
         <button className={`tab${view === "today" ? " on" : ""}`} onClick={() => setView("today")} aria-pressed={view === "today"}>Today</button>
         {!lockCategory && <div className="tabs-dd"><CategorySelect allowAll value={category} onChange={setCategory} /></div>}
       </div>
-      <div className="card" style={{ opacity: loading ? 0.6 : 1 }}>
-        <BoardList rows={rows} amountLabel={view === "all" ? "total verified bid" : "bid today (IST)"}
+      <div style={{ opacity: loading ? 0.6 : 1 }}>
+        <BoardList rows={rows} amountLabel={view === "all" ? "Total bid" : "Paid today"}
           empty={view === "today" ? "No bids yet today (IST). The first bid today takes #1 on the Today board." : undefined} />
       </div>
       <p className="note">{view === "all" ? "Ranked by total verified bids. Ties go to whoever reached the amount first." : "Today's board counts only what each listing paid today (India time) and resets at midnight IST."} All positions are paid placements.</p>

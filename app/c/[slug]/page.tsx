@@ -16,9 +16,9 @@ export default async function CategoryPage({ params }: { params: { slug: string 
   const rows = await allTime(c.name, 100);
   return (
     <>
-      <p className="small muted" style={{ margin: 0 }}><a href="/categories">Categories</a> /</p>
-      <h1 style={{ fontSize: 30, margin: "4px 0 6px" }}>{c.icon} {c.name}</h1>
-      <p className="muted" style={{ marginTop: 0 }}>Ranks within this category. <a href="/" style={{ color: "var(--link)" }}>List your website here →</a></p>
+      <p className="crumb"><a href="/categories">Categories</a> / {c.code}</p>
+      <h1 className="page-h">{c.name}</h1>
+      <p className="lede">Ranked within this category only. <a href="/#claim" style={{ color: "var(--link)" }}>List your website here</a></p>
       <Board initial={rows} initialCategory={c.name} lockCategory />
     </>
   );

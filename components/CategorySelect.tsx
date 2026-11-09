@@ -6,8 +6,8 @@ type Props = { value: string | null; onChange: (name: string | null) => void; al
 
 /** Compact, scrollable, keyboard-accessible category dropdown (listbox pattern). */
 export default function CategorySelect({ value, onChange, allowAll, placeholder = "Choose a category", id }: Props) {
-  const opts = [...(allowAll ? [{ name: null as string | null, icon: "🗂️", label: "All categories" }] : []),
-    ...CATEGORIES.map((c) => ({ name: c.name as string | null, icon: c.icon, label: c.name }))];
+  const opts = [...(allowAll ? [{ name: null as string | null, code: "ALL", label: "All categories" }] : []),
+    ...CATEGORIES.map((c) => ({ name: c.name as string | null, code: c.code, label: c.name }))];
   const [open, setOpen] = useState(false);
   const [act, setAct] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -46,14 +46,14 @@ export default function CategorySelect({ value, onChange, allowAll, placeholder 
     <div className="dd" ref={ref}>
       <button type="button" id={id} aria-haspopup="listbox" aria-expanded={open} aria-controls={lid} onClick={() => setOpen(!open)} onKeyDown={key}
         aria-activedescendant={open ? `${lid}-${act}` : undefined}>
-        <span>{cur ? `${cur.icon} ${cur.label}` : placeholder}</span><span aria-hidden>▾</span>
+        <span style={{ display: "flex", gap: 10, alignItems: "center", minWidth: 0 }}>{cur ? <><span className="code">{cur.code}</span><span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{cur.label}</span></> : <span className="muted">{placeholder}</span>}</span><span aria-hidden className="muted">▾</span>
       </button>
       {open && (
         <ul role="listbox" id={lid} ref={listRef} aria-label="Categories">
           {opts.map((o, i) => (
             <li key={o.label} id={`${lid}-${i}`} role="option" aria-selected={o.name === value} className={i === act ? "act" : ""}
               onMouseEnter={() => setAct(i)} onClick={() => pick(i)}>
-              <span aria-hidden>{o.icon}</span>{o.label}
+              <span className="code" aria-hidden>{o.code}</span>{o.label}
             </li>
           ))}
         </ul>

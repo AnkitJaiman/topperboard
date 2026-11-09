@@ -53,6 +53,15 @@ export async function listing(id: number) {
        from listings l where l.id = $1 and l.status = 'active'`, [id]);
 }
 
+export async function summary(): Promise<{ listings: number; total: number; today: number }> {
+  const r = await q1<{ listings: number; total: number; today: number }>(
+    `select (select count(*)::int from listings where status='active' and total_amount > 0) as listings,
+            (select coalesce(sum(total_amount),0)::int from listings where status='active') as total,
+            (select coalesce(sum(amount),0)::int from daily_totals d join listings l on l.id=d.listing_id
+              where l.status='active' and d.day = (now() at time zone 'Asia/Kolkata')::date) as today`);
+  return r ?? { listings: 0, total: 0, today: 0 };
+}
+
 export async function categoryCounts(): Promise<Record<string, { n: number; top: number }>> {
   const rows = await q<{ category: string; n: number; top: number }>(
     `select category, count(*)::int as n, max(total_amount)::int as top from listings where status='active' group by category`);

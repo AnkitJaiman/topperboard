@@ -1,43 +1,44 @@
 // The 30 Topper Board categories. Names and order are fixed by the founder: do not rename, merge or reorder.
-export type Category = { name: string; slug: string; icon: string };
+/** `code` is a short ticker-style tag shown next to the name. */
+export type Category = { name: string; slug: string; code: string };
 
 const RAW: [string, string][] = [
-  ["AI Agents & Infrastructure", "🤖"],
-  ["SEO & AI Visibility", "🔍"],
-  ["Marketing & Advertising", "📣"],
-  ["Analytics", "📊"],
-  ["Crypto, Web3 & Investing", "🪙"],
-  ["Developer Tools", "🛠️"],
-  ["Business, Finance & Legal", "💼"],
-  ["Security, Privacy & Compliance", "🔒"],
-  ["Health, Fitness & Wellness", "💪"],
-  ["Social Media & Creator Tools", "📱"],
-  ["Leaderboards & Attention Markets", "🏆"],
-  ["Hiring, Jobs & Careers", "🧑‍💼"],
-  ["Education & Learning", "🎓"],
-  ["Agencies, Studios & Services", "🏢"],
-  ["Ecommerce & Retail", "🛒"],
-  ["Domains & Web Assets", "🌐"],
-  ["Games & Entertainment", "🎮"],
-  ["People & Profiles", "👤"],
-  ["Productivity & Personal Tools", "✅"],
-  ["Product Management", "🗂️"],
-  ["Design & Creative", "🎨"],
-  ["Writing & Content", "✍️"],
-  ["Directories, Launch & Discovery", "🚀"],
-  ["AI Media Generation", "🖼️"],
-  ["Audio, Voice & Podcasting", "🎙️"],
-  ["Sales & Lead Generation", "🤝"],
-  ["Travel, Local & Lifestyle", "✈️"],
-  ["Real Estate & Property", "🏠"],
-  ["Media & News", "📰"],
-  ["Other", "✨"],
+  ["AI Agents & Infrastructure", "AGT"],
+  ["SEO & AI Visibility", "SEO"],
+  ["Marketing & Advertising", "MKT"],
+  ["Analytics", "ANL"],
+  ["Crypto, Web3 & Investing", "CRY"],
+  ["Developer Tools", "DEV"],
+  ["Business, Finance & Legal", "BIZ"],
+  ["Security, Privacy & Compliance", "SEC"],
+  ["Health, Fitness & Wellness", "HLT"],
+  ["Social Media & Creator Tools", "SOC"],
+  ["Leaderboards & Attention Markets", "LDR"],
+  ["Hiring, Jobs & Careers", "JOB"],
+  ["Education & Learning", "EDU"],
+  ["Agencies, Studios & Services", "AGY"],
+  ["Ecommerce & Retail", "ECM"],
+  ["Domains & Web Assets", "DOM"],
+  ["Games & Entertainment", "GME"],
+  ["People & Profiles", "PPL"],
+  ["Productivity & Personal Tools", "PRD"],
+  ["Product Management", "PM"],
+  ["Design & Creative", "DSN"],
+  ["Writing & Content", "WRT"],
+  ["Directories, Launch & Discovery", "DIR"],
+  ["AI Media Generation", "GEN"],
+  ["Audio, Voice & Podcasting", "AUD"],
+  ["Sales & Lead Generation", "SLS"],
+  ["Travel, Local & Lifestyle", "TRV"],
+  ["Real Estate & Property", "RE"],
+  ["Media & News", "NWS"],
+  ["Other", "OTH"],
 ];
 
 export const slugify = (s: string) =>
   s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-export const CATEGORIES: Category[] = RAW.map(([name, icon]) => ({ name, slug: slugify(name), icon }));
+export const CATEGORIES: Category[] = RAW.map(([name, code]) => ({ name, slug: slugify(name), code }));
 
 export const categoryByName = (name: string) => CATEGORIES.find((c) => c.name === name);
 export const categoryBySlug = (slug: string) => CATEGORIES.find((c) => c.slug === slug);

@@ -57,7 +57,7 @@ export default function BidBox({ settings, claimOne, enabled }: { settings: Sett
     setBusy(true);
     try {
       const res = await payAndClaim({ url, category, amount, title: meta?.title, description: meta?.description, favicon: meta?.favicon });
-      if (res.status === "paid") { setOk(`🎉 You're #${res.rank}! Opening your listing…`); router.push(`/l/${res.listingId}?new=1`); router.refresh(); }
+      if (res.status === "paid") { setOk(`Verified. You're #${res.rank}. Opening your listing…`); router.push(`/l/${res.listingId}?new=1`); router.refresh(); }
       else if (res.status === "cancelled" || res.status === "failed") setErr(res.message);
       else setOk(res.message);
     } catch (e: any) {
@@ -68,7 +68,7 @@ export default function BidBox({ settings, claimOne, enabled }: { settings: Sett
 
   const valid = Number.isInteger(amount) && amount >= settings.min_bid;
   return (
-    <div className="card bidbox">
+    <div className="bidbox" id="claim">
       <div className="row wrapm">
         <input className="input" placeholder="yourwebsite.com" aria-label="Website link" inputMode="url" autoComplete="url"
           value={url} onChange={(e) => { setUrl(e.target.value); setMeta(null); }} onBlur={lookup} />
@@ -84,7 +84,7 @@ export default function BidBox({ settings, claimOne, enabled }: { settings: Sett
           </div>
         </div>
       )}
-      {meta?.existing && <div className="quote">This website is already on the board. <a className="mono" href={`/l/${meta.existing.id}`} style={{ color: "var(--link)" }}>Increase its bid →</a></div>}
+      {meta?.existing && <div className="quote">This website is already on the board. <a href={`/l/${meta.existing.id}`} style={{ color: "var(--link)" }}>Increase its bid</a></div>}
       <div className="row flex">
         <div className="stepper">
           <button type="button" aria-label={`Decrease by ₹${settings.min_increment}`} onClick={() => step(-1)}>−</button>
@@ -102,7 +102,7 @@ export default function BidBox({ settings, claimOne, enabled }: { settings: Sett
       </div>
       {err && <div className="err" role="alert">{err}</div>}
       {ok && <div className="okmsg" role="status">{ok}</div>}
-      <div className="small muted" style={{ textAlign: "center" }}>One-time payment via UPI, cards or net banking. Ranked only after payment is verified. <a href="/rules" style={{ color: "var(--link)" }}>Rules</a></div>
+      <div className="fine">UPI, cards and net banking via Razorpay. Your rank changes only after the payment is verified. <a href="/rules">How ranking works</a></div>
     </div>
   );
 }

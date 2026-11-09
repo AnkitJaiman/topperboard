@@ -28,14 +28,14 @@ export default function TopUp({ listingId, total, minInc, max, enabled }: { list
     setBusy(true);
     try {
       const r = await payAndClaim({ listingId, amount });
-      if (r.status === "paid") { setMsg({ ok: true, t: `🎉 Done! You're now #${r.rank}.` }); router.refresh(); }
+      if (r.status === "paid") { setMsg({ ok: true, t: `Verified. You're now #${r.rank}.` }); router.refresh(); }
       else setMsg({ ok: r.status !== "cancelled" && r.status !== "failed", t: r.message });
     } catch (e: any) { setMsg({ ok: false, t: e.message }); }
     finally { setBusy(false); }
   }
 
   return (
-    <div className="card bidbox" style={{ margin: 0 }}>
+    <div className="bidbox">
       <h2 className="sec-title" style={{ margin: 0 }}>Increase bid</h2>
       <div className="row flex">
         <div className="stepper">
