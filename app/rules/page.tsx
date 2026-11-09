@@ -12,7 +12,7 @@ export default async function Rules() {
       <h2>Bidding</h2>
       <ul>
         <li>The minimum bid for a new listing is <b>{inr(s.min_bid)}</b>.</li>
-        <li>Bids move in steps of <b>{inr(s.min_increment)}</b>. To take a position you must bid at least {inr(s.min_increment)} more than the listing currently there.</li>
+        <li>Any higher total ranks above a lower one. The − / + buttons move in steps of <b>{inr(s.min_increment)}</b>, and the headline suggests the current top total plus {inr(s.min_increment)} so you stay ahead.</li>
         <li>The most you can pay in one payment is <b>{inr(s.max_payment)}</b>. You can add more with further payments.</li>
         <li>Bids are cumulative. Increasing your bid adds to your total; you pay only the extra amount.</li>
         <li>A verified total never goes down.</li>

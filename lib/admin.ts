@@ -1,23 +1,38 @@
 import { cookies, headers } from "next/headers";
+import { q, q1 } from "./db";
 import { hmacHex, safeEqual, secret } from "./util";
 
 const COOKIE = "tb_admin";
 const TTL = 60 * 60 * 12; // 12 hours
 
-export function makeSession(): string {
+/** Session "epoch": logging out bumps it, which invalidates every admin cookie issued before. */
+async function epoch(): Promise<number> {
+  const r = await q1<{ value: number }>("select value from settings where key='admin_epoch'");
+  return Number(r?.value ?? 0);
+}
+
+export async function makeSession(): Promise<string> {
   const exp = Math.floor(Date.now() / 1000) + TTL;
-  return `${exp}.${hmacHex(secret(), "admin:" + exp)}`;
+  const ep = await epoch();
+  return `${exp}.${ep}.${hmacHex(secret(), `admin:${exp}:${ep}`)}`;
 }
 
-export function validSession(v: string | undefined): boolean {
+export async function validSession(v: string | undefined): Promise<boolean> {
   if (!v) return false;
-  const [exp, sig] = v.split(".");
-  if (!exp || !sig || Number(exp) < Date.now() / 1000) return false;
-  return safeEqual(hmacHex(secret(), "admin:" + exp), sig);
+  const [exp, ep, sig] = v.split(".");
+  if (!exp || !ep || !sig || Number(exp) < Date.now() / 1000) return false;
+  if (!safeEqual(hmacHex(secret(), `admin:${exp}:${ep}`), sig)) return false;
+  return Number(ep) === (await epoch());
 }
 
-export function isAdmin(): boolean {
+export async function isAdmin(): Promise<boolean> {
   return validSession(cookies().get(COOKIE)?.value);
+}
+
+/** Log out everywhere: every existing admin cookie stops working. */
+export async function endAllSessions() {
+  await q(`insert into settings (key, value) values ('admin_epoch', 1)
+           on conflict (key) do update set value = settings.value + 1`);
 }
 
 /** Same-origin check for admin form posts (with SameSite=Strict cookies this blocks CSRF). */

@@ -12,7 +12,7 @@ export default function BidBox({ settings, claimOne, enabled, fixedCategory = nu
   const router = useRouter();
   const [url, setUrl] = useState("");
   const [category, setCategory] = useState<string | null>(fixedCategory);
-  const [amount, setAmount] = useState(claimOne);
+  const [amount, setAmount] = useState(Math.min(claimOne, settings.max_payment));
   const [meta, setMeta] = useState<{ title: string; description: string; favicon: string | null; domain: string; existing?: { id: number; title: string } | null } | null>(null);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [iconOk, setIconOk] = useState(true);
@@ -24,6 +24,19 @@ export default function BidBox({ settings, claimOne, enabled, fixedCategory = nu
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const lastUrl = useRef("");
+
+  // Every 20 s, re-check the price of #1 so the headline doesn't go stale when someone else bids.
+  useEffect(() => {
+    const t = setInterval(async () => {
+      if (document.hidden) return;
+      const r = await fetch(`/api/quote?amount=${amount}&category=${encodeURIComponent(category || "Other")}`).catch(() => null);
+      if (!r?.ok) return;
+      const j = await r.json();
+      setQuote(j);
+      if (!touched) setAmount(Math.min(category ? j.categoryClaimOne : j.claimOne, settings.max_payment));
+    }, 20000);
+    return () => clearInterval(t);
+  }, [amount, category, touched]); // eslint-disable-line
 
   // Live position preview.
   useEffect(() => {
@@ -39,7 +52,7 @@ export default function BidBox({ settings, claimOne, enabled, fixedCategory = nu
     setCategory(c);
     if (touched || !c) return;
     const r = await fetch(`/api/quote?amount=0&category=${encodeURIComponent(c)}`).catch(() => null);
-    if (r?.ok) { const j = await r.json(); setAmount(j.categoryClaimOne); }
+    if (r?.ok) { const j = await r.json(); setAmount(Math.min(j.categoryClaimOne, settings.max_payment)); }
   }
 
   async function lookup() {
@@ -61,7 +74,7 @@ export default function BidBox({ settings, claimOne, enabled, fixedCategory = nu
   };
   function typeAmount(raw: string) {
     setTouched(true);
-    const v = raw.replace(/[^0-9]/g, "");
+    const v = raw.split(".")[0].replace(/[^0-9]/g, "");
     let n = v ? Number(v) : 0;
     if (n > settings.max_payment) { n = settings.max_payment; setCapNote(`Maximum ${inr(settings.max_payment)} per payment. You can add more later.`); }
     else setCapNote("");
@@ -77,9 +90,14 @@ export default function BidBox({ settings, claimOne, enabled, fixedCategory = nu
     if (amount > settings.max_payment) return setErr(`Maximum single payment is ${inr(settings.max_payment)}`);
     if (meta?.existing) return router.push(`/l/${meta.existing.id}`);
     setBusy(true);
+    const fresh = await fetch(`/api/quote?amount=${amount}&category=${encodeURIComponent(category)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (fresh && quote && fresh.categoryRank !== quote.categoryRank) {
+      setQuote(fresh); setBusy(false);
+      return setErr(`Rankings just changed: ${inr(amount)} now gets #${fresh.categoryRank} in ${category}. Press Claim rank again, or raise your bid.`);
+    }
     try {
       const res = await payAndClaim({ url, category, amount, title: meta?.title, description: meta?.description, favicon: meta?.favicon });
-      if (res.status === "paid") { setOk(`Verified. You're #${res.rank}. Opening your listing…`); router.push(`/l/${res.listingId}?new=1`); router.refresh(); }
+      if (res.status === "paid") { setOk(`Verified. You're #${res.rank} overall. Opening your listing…`); router.push(`/l/${res.listingId}?new=1`); router.refresh(); }
       else if (res.status === "cancelled" || res.status === "failed") setErr(res.message);
       else setOk(res.message);
     } catch (e: any) {
@@ -98,6 +116,9 @@ export default function BidBox({ settings, claimOne, enabled, fixedCategory = nu
     if (category) line = quote.rank === 1 ? <>That&apos;s also <b>#1 overall</b>.</> : <>That&apos;s <b>#{quote.rank}</b> overall. #1 overall costs <b>{inr(quote.claimOne)}</b>.</>;
     else line = quote.rank === 1 ? <>That&apos;s the top spot overall.</> : <>#1 overall costs <b>{inr(quote.claimOne)}</b>.</>;
   }
+  const needed = category ? quote?.categoryClaimOne : quote?.claimOne;
+  if (valid && needed && needed > settings.max_payment && rank !== 1)
+    line = <>#1 needs {inr(needed)}, more than the {inr(settings.max_payment)} limit per payment. List now, then raise your bid from your listing page.</>;
   return (
     <section className="claim" id="claim" aria-labelledby="claimH">
       <div className="claim-head">
@@ -114,7 +135,7 @@ export default function BidBox({ settings, claimOne, enabled, fixedCategory = nu
       <form className="claim-row" onSubmit={claim} noValidate>
         <label className="sr" htmlFor="claim-url">Website link</label>
         <input id="claim-url" className="input" placeholder="Your website, product or profile link" inputMode="url" autoComplete="url"
-          value={url} onChange={(e) => { setUrl(e.target.value); setMeta(null); }} onBlur={lookup} aria-invalid={err === "Enter your website link" || undefined} />
+          value={url} onChange={(e) => { setUrl(e.target.value); if (e.target.value.trim() !== lastUrl.current) setMeta(null); }} onBlur={lookup} aria-invalid={err === "Enter your website link" || undefined} />
         <CategorySelect value={category} onChange={pickCategory} label="Category" />
         <button className="btn gold" type="submit" disabled={busy || !enabled}>
           {!enabled ? "Opening soon" : busy ? "Opening payment…" : "Claim rank"}

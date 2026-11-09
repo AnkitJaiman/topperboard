@@ -13,7 +13,7 @@ const inr = (n: number) => "₹" + Number(n || 0).toLocaleString("en-IN");
 const dt = (s: string | null) => s ? new Date(s).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
 
 export default async function Admin({ searchParams }: { searchParams: { msg?: string; show?: string } }) {
-  if (!isAdmin()) redirect("/admin/login");
+  if (!(await isAdmin())) redirect("/admin/login");
   const today = istDate();
   const [stats, s, listings, payments, days] = await Promise.all([
     q1<any>(`select

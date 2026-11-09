@@ -18,7 +18,7 @@ Users paste a website link, pick one of 30 categories and bid in rupees (from â‚
 | Admin panel: revenue, listings, transactions, clicks, remove / edit listings, bid settings, daily history | `app/admin` |
 | About, Rules, FAQ, Categories, Terms, Privacy, Refunds, Contact | `app/*` |
 | Database (PostgreSQL / Supabase) with the atomic `apply_payment()` function | `db/schema.sql` |
-| Tests: 16 backend + 5 browser tests (real Postgres + mock Razorpay) | `tests/` |
+| Tests: 20 backend + 5 browser tests (real Postgres + mock Razorpay) | `tests/` |
 
 **Ranking rules:** All-time = cumulative verified bids (never decreases). Today = only what was paid today in India time, resets at midnight IST. Ties go to whoever reached the amount first. Nothing changes until Razorpay confirms the payment; each payment is applied exactly once even if the checkout callback and the webhook both arrive, or the webhook arrives twice.
 

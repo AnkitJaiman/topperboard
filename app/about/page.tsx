@@ -1,5 +1,6 @@
 import { SITE } from "@/lib/site";
 import { siteStats } from "@/lib/board";
+import { getSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "About" };
@@ -8,7 +9,7 @@ const inr = (n: number) => "₹" + Number(n || 0).toLocaleString("en-IN");
 const num = (n: number) => Number(n || 0).toLocaleString("en-IN");
 
 export default async function About() {
-  const s = await siteStats();
+  const [s, cfg] = await Promise.all([siteStats(), getSettings()]);
   return (
     <article className="prose">
       <h1>About</h1>
@@ -19,7 +20,7 @@ export default async function About() {
       <div className="live-stats" aria-label="Live numbers">
         <div className="ls"><b data-stat="visitors"><span className="live-dot" aria-hidden />{num(s.visitors)}</b><span>visitors</span></div>
         <div className="ls"><b data-stat="revenue">{inr(s.revenue)}</b><span>total bids</span></div>
-        <div className="ls"><b data-stat="top">{inr(s.topAmount)}</b><span data-stat="topTitle">highest rank so far{s.topTitle ? <> · <a href={`/l/${s.topId}`}>{s.topTitle}</a></> : null}</span></div>
+        <div className="ls"><b data-stat="top">{inr(s.topAmount)}</b><span data-stat="topTitle">highest total bid{s.topTitle ? <> · <a href={`/l/${s.topId}`}>{s.topTitle}</a></> : null}</span></div>
         <div className="ls"><b data-stat="listed">{num(s.listed)}</b><span>listed</span></div>
         <div className="ls"><b data-stat="addedToday">{num(s.addedToday)}</b><span>added today</span></div>
         <div className="ls"><b data-stat="revenueToday">{inr(s.revenueToday)}</b><span>bids today</span></div>
@@ -28,7 +29,7 @@ export default async function About() {
 
       <h2>How it works</h2>
       <ul>
-        <li>Paste your link, pick one of 30 categories and set your bid, from ₹99.</li>
+        <li>Paste your link, pick one of 30 categories and set your bid, from {inr(cfg.min_bid)}.</li>
         <li>Pay with UPI, cards or net banking through Razorpay.</li>
         <li>Once the payment is verified, your listing appears at the rank your total earns.</li>
         <li>Raise your bid any time. You pay only the extra amount.</li>

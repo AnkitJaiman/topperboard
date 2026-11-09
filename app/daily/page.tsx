@@ -1,14 +1,14 @@
 import BoardList from "@/components/BoardList";
 import { archiveDays, dayBoard } from "@/lib/board";
 import { categoryBySlug, CATEGORIES } from "@/lib/categories";
-import { istDate } from "@/lib/util";
+import { istDate, realDate } from "@/lib/util";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Daily leaderboards" };
 
 export default async function Daily({ searchParams }: { searchParams: { date?: string; category?: string } }) {
   const today = istDate();
-  const day = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.date || "") ? searchParams.date! : today;
+  const day = realDate(searchParams.date) ?? today;
   const cat = searchParams.category ? categoryBySlug(searchParams.category) : undefined;
   const [rows, days] = await Promise.all([dayBoard(day, cat?.name), archiveDays(90)]);
   const label = new Date(day + "T00:00:00+05:30").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" });
@@ -34,7 +34,7 @@ export default async function Daily({ searchParams }: { searchParams: { date?: s
           {days.length ? (
             <ul className="act-list">
               {days.map((d) => (
-                <li key={d.day}><a className="mono" href={`/daily?date=${d.day}`}><b>{d.day}</b></a><span className="small muted mono">{d.listings} listed · ₹{d.amount.toLocaleString("en-IN")}</span></li>
+                <li key={d.day}><a className="mono" href={`/daily?date=${d.day}${cat ? `&category=${cat.slug}` : ""}`}><b>{d.day}</b></a><span className="small muted mono">{d.listings} listed · ₹{d.amount.toLocaleString("en-IN")}</span></li>
               ))}
             </ul>
           ) : <p className="small muted" style={{ margin: 0 }}>No days yet.</p>}

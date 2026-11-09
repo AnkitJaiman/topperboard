@@ -8,7 +8,7 @@ const LABEL: Record<string, string> = { new_number_one: "New #1", moved_up: "Mov
 function text(a: Activity) {
   const name = <a href={`/l/${a.listing_id}`}><b>{a.title}</b></a>;
   switch (a.type) {
-    case "new_number_one": return <>{name} took #1 with {inr(a.amount)}</>;
+    case "new_number_one": return <>{name} took #1 after adding {inr(a.amount)}</>;
     case "moved_up": return <>{name} climbed to #{a.rank}</>;
     case "top_up": return <>{name} added {inr(a.amount)}, now #{a.rank}</>;
     default: return <>{name} entered at #{a.rank} with {inr(a.amount)}</>;

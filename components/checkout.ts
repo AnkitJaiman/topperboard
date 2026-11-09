@@ -37,6 +37,7 @@ export async function payAndClaim(body: Record<string, unknown>): Promise<Checko
           const v = await fetch("/api/payments/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(resp) });
           const j = await v.json().catch(() => ({}));
           if (v.ok && j.status === "paid") resolve({ status: "paid", listingId: j.listingId, rank: j.rank });
+          else if (j.status === "failed") resolve({ status: "failed", message: j.message || "Payment failed. No money was taken." });
           else resolve({ status: j.status === "review" ? "review" : "pending", message: j.message || j.error || "Payment received. Your rank will update shortly." });
         } catch {
           resolve({ status: "pending", message: "Payment received. Your rank will update in a minute." });

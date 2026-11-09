@@ -10,13 +10,16 @@ const LIMITS: Record<string, [number, number]> = {
 };
 
 export async function POST(req: Request) {
-  if (!isAdmin() || !sameOrigin()) return new Response("forbidden", { status: 403 });
+  if (!sameOrigin() || !(await isAdmin())) return new Response("forbidden", { status: 403 });
   const f = await req.formData();
   for (const [key, [lo, hi]] of Object.entries(LIMITS)) {
     const v = Number(f.get(key));
     if (!Number.isInteger(v) || v < lo || v > hi)
       return new Response(null, { status: 303, headers: { location: `/admin?msg=${encodeURIComponent(`${key} must be ${lo}–${hi}`)}#settings` } });
   }
+  const min = Number(f.get("min_bid")), inc = Number(f.get("min_increment")), max = Number(f.get("max_payment"));
+  if (min > max || inc > max)
+    return new Response(null, { status: 303, headers: { location: `/admin?msg=${encodeURIComponent("Minimum bid and increment must not be more than the maximum payment")}#settings` } });
   for (const key of Object.keys(LIMITS)) {
     await q("insert into settings (key, value) values ($1,$2) on conflict (key) do update set value = excluded.value", [key, Number(f.get(key))]);
   }

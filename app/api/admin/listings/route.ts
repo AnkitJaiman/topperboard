@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 /** Admin actions on a listing: remove, restore, edit description / title / category. Bids are never edited here. */
 export async function POST(req: Request) {
-  if (!isAdmin() || !sameOrigin()) return new Response("forbidden", { status: 403 });
+  if (!sameOrigin() || !(await isAdmin())) return new Response("forbidden", { status: 403 });
   const f = await req.formData();
   const id = Number(f.get("id"));
   const action = String(f.get("action") || "");

@@ -3,7 +3,7 @@ import { getSettings } from "@/lib/settings";
 import { isCategory } from "@/lib/categories";
 import { blockedText, cleanUrl } from "@/lib/url";
 import { createOrder, publicKeyId, razorpayConfigured } from "@/lib/razorpay";
-import { bad, json, rateLimit } from "@/lib/util";
+import { bad, json, rateLimit, toId } from "@/lib/util";
 import { quote } from "@/lib/board";
 import crypto from "crypto";
 
@@ -29,7 +29,8 @@ export async function POST(req: Request) {
 
   if (b?.listingId) {
     // Increase an existing listing's bid: charge only the extra amount.
-    const listingId = Number(b.listingId);
+    const listingId = toId(b.listingId);
+    if (!listingId) return bad("Listing not found", 404);
     const l = await q1<{ id: number; title: string; category: string }>(
       "select id, title, category from listings where id=$1 and status='active'", [listingId]);
     if (!l) return bad("Listing not found", 404);

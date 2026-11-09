@@ -35,8 +35,9 @@ export async function dayBoard(day: string, category?: string, limit = 100): Pro
 export const todayBoard = (category?: string, limit?: number) => dayBoard(istDate(), category, limit);
 
 export async function archiveDays(limit = 60): Promise<{ day: string; listings: number; amount: number }[]> {
-  return q(`select to_char(day,'YYYY-MM-DD') as day, count(*)::int as listings, sum(amount)::int as amount
-              from daily_totals group by day order by day desc limit $1`, [limit]);
+  return q(`select to_char(d.day,'YYYY-MM-DD') as day, count(*)::int as listings, sum(d.amount)::int as amount
+              from daily_totals d join listings l on l.id = d.listing_id and l.status = 'active'
+             group by d.day order by d.day desc limit $1`, [limit]);
 }
 
 export type Activity = { id: number; type: string; amount: number; rank: number; created_at: string; listing_id: number; title: string; domain: string };
@@ -47,8 +48,10 @@ export async function recentActivity(limit = 12): Promise<Activity[]> {
 }
 
 export async function listing(id: number) {
-  return q1<Row & { rank: number; clicks_today: number; first_paid_at: string }>(
+  return q1<Row & { rank: number; category_rank: number; clicks_today: number; first_paid_at: string }>(
     `select ${COLS}, l.total_amount::int as amount, l.first_paid_at, listing_rank(l.id) as rank,
+            (select 1 + count(*)::int from listings o where o.status='active' and o.category = l.category and o.id <> l.id
+               and (o.total_amount > l.total_amount or (o.total_amount = l.total_amount and o.last_bid_at < l.last_bid_at))) as category_rank,
             (select count(*)::int from clicks c where c.listing_id = l.id and c.day = (now() at time zone 'Asia/Kolkata')::date) as clicks_today
        from listings l where l.id = $1 and l.status = 'active'`, [id]);
 }

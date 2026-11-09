@@ -33,8 +33,29 @@ export function safeEqual(a: string, b: string): boolean {
   return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
 }
 
+/**
+ * Client IP for rate limits and anonymous counting. Prefers headers set by the hosting platform
+ * (Vercel: x-vercel-forwarded-for / x-real-ip). With a generic proxy the RIGHT-most X-Forwarded-For
+ * entry is the one added by our own proxy, so a client can't spoof it by sending its own header.
+ */
 export function clientIp(h: Headers): string {
-  return (h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "0.0.0.0").slice(0, 64);
+  const platform = h.get("x-vercel-forwarded-for") || h.get("x-real-ip");
+  if (platform) return platform.split(",")[0].trim().slice(0, 64);
+  const xff = (h.get("x-forwarded-for") || "").split(",").map((s) => s.trim()).filter(Boolean);
+  return (xff[xff.length - 1] || "unknown").slice(0, 64);
+}
+
+/** Positive database id or null (guards against huge / non-numeric ids). */
+export function toId(v: unknown): number | null {
+  const n = typeof v === "number" ? v : typeof v === "string" && /^\d{1,12}$/.test(v) ? Number(v) : NaN;
+  return Number.isSafeInteger(n) && n > 0 && n < 2 ** 53 ? n : null;
+}
+
+/** A real calendar date in YYYY-MM-DD form, or null (rejects 2026-02-31). */
+export function realDate(s: unknown): string | null {
+  if (typeof s !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  const d = new Date(s + "T00:00:00Z");
+  return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s ? s : null;
 }
 
 /** Returns true if allowed. Fixed-window limit stored in Postgres (works on serverless). */

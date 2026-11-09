@@ -1,3 +1,5 @@
+import ClearParam from "@/components/ClearParam";
+import { toId } from "@/lib/util";
 import { notFound } from "next/navigation";
 import TopUp from "@/components/TopUp";
 import { Fav } from "@/components/BoardList";
@@ -9,20 +11,21 @@ import { razorpayConfigured } from "@/lib/razorpay";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
-  const l = Number.isInteger(Number(params.id)) ? await listing(Number(params.id)) : null;
+  const mid = toId(params.id);
+  const l = mid ? await listing(mid) : null;
   return { title: l ? `${l.title} · #${l.rank}` : "Listing" };
 }
 
 export default async function ListingPage({ params, searchParams }: { params: { id: string }; searchParams: { new?: string } }) {
-  const id = Number(params.id);
-  if (!Number.isInteger(id)) notFound();
+  const id = toId(params.id);
+  if (!id) notFound();
   const [l, s] = await Promise.all([listing(id), getSettings()]);
   if (!l) notFound();
   const c = categoryByName(l.category);
   const inr = (n: number) => "₹" + Number(n).toLocaleString("en-IN");
   return (
     <div style={{ maxWidth: 760, display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 24 }}>
-      {searchParams.new && <div className="okmsg" role="status">Payment verified. Your listing is live at #{l.rank}.</div>}
+      {searchParams.new && <><ClearParam /><div className="okmsg" role="status">Payment verified. Your listing is live at #{l.rank} overall{c ? `, #${l.category_rank} in ${c.name}` : ""}.</div></>}
       {c && <p className="crumb" style={{ margin: 0 }}><a href={`/c/${c.slug}`}>{c.code} · {c.name}</a></p>}
       <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
         <Fav src={l.favicon_url} domain={l.domain} />
@@ -30,7 +33,7 @@ export default async function ListingPage({ params, searchParams }: { params: { 
           <h1 className="page-h" style={{ overflowWrap: "anywhere", margin: 0 }}>{l.title}</h1>
           <div className="small muted mono">{l.domain}</div>
         </div>
-        <div className="mono" style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-.04em" }} aria-label={`Rank ${l.rank}`}>#{l.rank}</div>
+        <div style={{ textAlign: "right" }}><div className="mono" style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-.04em" }}><span className="sr">Rank </span>#{l.rank}</div><div className="small muted">overall{c ? <> · #{l.category_rank} in {c.code}</> : null}</div></div>
       </div>
       {l.description && <p style={{ margin: 0, fontSize: 17 }}>{l.description}</p>}
       <div className="stats" style={{ margin: 0 }}>

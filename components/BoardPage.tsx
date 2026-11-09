@@ -13,7 +13,7 @@ export default async function BoardPage({ category, view }: { category?: Categor
   const name = category?.name;
   const [rows, today, activity, q] = await Promise.all([
     view === "today" ? todayBoard(name, 100) : allTime(name, 100),
-    todayBoard(undefined, 5),
+    todayBoard(name, 5),
     recentActivity(8),
     quote(0, name || "Other"),
   ]);
@@ -26,7 +26,7 @@ export default async function BoardPage({ category, view }: { category?: Categor
       <div className="grid">
         <Board key={`${view}-${name || "all"}`} initial={rows} view={view} category={name ?? null} />
         <aside className="side">
-          <TodayMini rows={today} />
+          <TodayMini rows={today} category={name} />
           <ActivityFeed items={activity} />
         </aside>
       </div>

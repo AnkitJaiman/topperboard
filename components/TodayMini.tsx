@@ -3,10 +3,10 @@ import { BoardRow, Fav } from "./BoardList";
 const inr = (n: number) => "₹" + Number(n).toLocaleString("en-IN");
 
 /** Compact top-5 for today's (IST) board, shown in the sidebar. */
-export default function TodayMini({ rows }: { rows: BoardRow[] }) {
+export default function TodayMini({ rows, category }: { rows: BoardRow[]; category?: string }) {
   return (
     <section aria-label="Today's ranking">
-      <div className="side-h"><h2 className="sec-title">Today&apos;s ranking</h2><a href="/daily">See all</a></div>
+      <div className="side-h"><h2 className="sec-title">Today{category ? " in this category" : "'s ranking"}</h2><a href="/daily">See all</a></div>
       {rows.length ? (
         <ol className="mini" aria-label="Top 5 today">
           {rows.slice(0, 5).map((r) => (

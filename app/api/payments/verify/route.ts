@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   let p = await fetchPayment(paymentId);
   if (p.order_id !== orderId) return bad("Payment does not belong to this order", 400);
   if (p.status === "authorized") p = await capturePayment(paymentId, pay.amount * 100);
+  if (p.status === "failed") return json({ status: "failed", message: "Payment failed. No money was taken." }, 402);
   if (p.status !== "captured") return json({ status: "pending", message: "Payment is still processing. Your rank will update as soon as it is confirmed." }, 202);
 
   const r = await applyPayment(orderId, paymentId, p.amount);

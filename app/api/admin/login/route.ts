@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   if (!(await rateLimit(req.headers, "admin-login", 5, 900))) return back("rate");
   const form = await req.formData();
   if (!passwordOk(form.get("password"))) return back("wrong");
-  cookies().set(ADMIN_COOKIE, makeSession(), {
+  cookies().set(ADMIN_COOKIE, await makeSession(), {
     httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/", maxAge: ADMIN_TTL,
   });
   return back();

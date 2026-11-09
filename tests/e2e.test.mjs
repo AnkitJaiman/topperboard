@@ -147,7 +147,8 @@ test("12: failed payment → no listing, payment marked failed", async () => {
   const o = await order(newSite(500, "Other"));
   const p = await payOrder(o.json.orderId, { status: "failed" });
   const v = await api("/api/payments/verify", { method: "POST", body: p });
-  assert.equal(v.json.status, "pending");
+  assert.equal(v.json.status, "failed");
+  assert.match(v.json.message, /No money was taken/);
   const wb = mock.webhookBody("payment.failed", o.json.orderId, p.razorpay_payment_id, 50000);
   const w = await api("/api/webhooks/razorpay", { method: "POST", raw: wb.raw, headers: { "x-razorpay-signature": wb.sig, "x-razorpay-event-id": "evt_fail_1" } });
   assert.equal(w.text, "failed");
@@ -308,3 +309,34 @@ test("Visitors are counted once per person per day; About shows live numbers", a
   assert.match(about.text, /visitors/);
 });
 
+
+test("Regression: bad dates and ids never cause a server error", async () => {
+  assert.equal((await api("/daily?date=2026-02-31")).status, 200);
+  assert.equal((await api("/api/board?view=2026-02-31")).status, 400);
+  assert.equal((await api("/l/99999999999999999999")).status, 404);
+  assert.equal((await api("/l/abc")).status, 404);
+  const go = await api("/go/99999999999999999999");
+  assert.equal(go.status, 302);
+  assert.equal(go.headers.get("location"), "/", "relative redirect, not localhost");
+  assert.equal((await api("/api/quote?amount=1e20&category=Other")).status, 400);
+  assert.equal((await api("/api/quote?amount=10&listingId=abc")).status, 400);
+  assert.equal((await order({ listingId: "abc", amount: 50 })).status, 404);
+});
+
+test("Regression: a category's #1 price comes from that category, not the whole board", async () => {
+  const empty = (await api("/api/quote?amount=0&category=Product%20Management")).json;
+  assert.equal(empty.categoryClaimOne, 99);
+  assert.ok(empty.claimOne > 99);
+});
+
+test("Regression: admin logout ends the session; settings can't make listing impossible", async () => {
+  const origin = { origin: BASE, "content-type": "application/x-www-form-urlencoded", "x-forwarded-for": "88.88.88.88" };
+  const form = (o) => new URLSearchParams(o).toString();
+  const ok = await api("/api/admin/login", { method: "POST", raw: form({ password: ADMIN_PASSWORD }), headers: origin });
+  const cookie = ok.headers.get("set-cookie").split(";")[0];
+  const bad = await api("/api/admin/settings", { method: "POST", raw: form({ min_bid: 90000, min_increment: 10, max_payment: 50000 }), headers: { ...origin, cookie } });
+  assert.match(decodeURIComponent(bad.headers.get("location")), /must not be more than the maximum/);
+  assert.equal((await api("/admin", { headers: { cookie } })).status, 200);
+  await api("/api/admin/logout", { method: "POST", headers: { ...origin, cookie } });
+  assert.equal((await api("/admin", { headers: { cookie } })).status, 307, "copied cookie no longer works");
+});

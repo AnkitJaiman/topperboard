@@ -1,5 +1,5 @@
 import { q1, tx } from "@/lib/db";
-import { clientIp, istDate, secret, sha256 } from "@/lib/util";
+import { clientIp, istDate, secret, sha256, toId } from "@/lib/util";
 
 export const dynamic = "force-dynamic";
 
@@ -7,9 +7,10 @@ const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegra
 
 /** Tracked outbound link: counts one click per anonymous visitor per listing per IST day, then redirects. */
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
-  const l = Number.isInteger(id) ? await q1<{ url: string }>("select url from listings where id=$1 and status='active'", [id]) : null;
-  if (!l) return Response.redirect(new URL("/", req.url), 302);
+  const id = toId(params.id);
+  const l = id ? await q1<{ url: string }>("select url from listings where id=$1 and status='active'", [id]) : null;
+  // Relative redirect, so it works behind any proxy or domain.
+  if (!l) return new Response(null, { status: 302, headers: { location: "/" } });
 
   const ua = req.headers.get("user-agent") || "";
   if (!BOT.test(ua)) {

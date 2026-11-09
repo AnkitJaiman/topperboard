@@ -66,7 +66,7 @@ test("Claim flow: link → category → bid → pay → verified → listed", as
   await p.goto(BASE + "/");
   assert.match(await p.textContent("h1"), /Claim #1/);
   assert.equal(await p.inputValue('input[aria-label="Bid amount in rupees"]'), "99");
-  await p.fill('input[aria-label="Website link"]', "mytool.example.in");
+  await p.fill('#claim-url', "mytool.example.in");
   await p.click(".claim .dd > button");
   await p.click('.claim .dd li:has-text("Developer Tools")');
   await p.click('button[aria-label^="Increase by"]');
