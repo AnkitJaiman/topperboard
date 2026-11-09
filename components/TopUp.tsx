@@ -50,7 +50,7 @@ export default function TopUp({ listingId, total, minInc, max, enabled }: { list
       </div>
       <div className="quote muted" aria-live="polite">
         New total <b>{inr(total + amount)}</b>{q && <> · you&apos;d be <b>#{q.rank}</b></>}
-        {q && q.rank > 1 && <> · <button type="button" className="mono" style={{ background: "none", border: 0, color: "var(--link)", cursor: "pointer", padding: 0 }} onClick={() => setAmount(q.claimOne)}>take #1 for {inr(q.claimOne)}</button></>}
+        {q && q.rank > 1 && <> · <button type="button" className="linkbtn" onClick={() => setAmount(q.claimOne)}>take #1 for {inr(q.claimOne)}</button></>}
       </div>
       {msg && <div className={msg.ok ? "okmsg" : "err"} role="status">{msg.t}</div>}
     </div>

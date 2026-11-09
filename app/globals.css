@@ -217,3 +217,21 @@ table.t th{color:var(--muted);font:600 10.5px var(--mono);letter-spacing:.08em;t
 .live-dot{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 25%,transparent);flex:none}
 @media (prefers-reduced-motion:no-preference){.live-dot{animation:pulse 2s ease-in-out infinite}}
 @keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--good) 0%,transparent)}}
+
+/* readability floor + touch-friendly targets on phones and tablets */
+.code{font-size:11px}
+.pill .code{font-size:11px}
+.act-list .ev,.stat span:first-child,.sec-title,.crumb{font-size:11px}
+.brand{min-height:44px}
+@media (pointer:coarse){
+  .claim-amt button{width:40px;height:40px}
+  .side-h a,.details,.crumb a,.lede a,.okmsg a,.quote a,[data-takeone]{display:inline-block;padding:10px 4px;margin:-10px -4px}
+  .info .t{padding:6px 0;margin:-6px 0}
+  .mini .mt{padding:10px 0;margin:-10px 0}
+  .act-list a{display:inline-block;padding:6px 0;margin:-6px 0}
+  .chip{padding:8px 0;margin:-8px 0}
+  .ftr nav a{padding:12px 0}
+}
+table.t th{font-size:11px}
+.linkbtn{background:none;border:0;color:var(--link);cursor:pointer;padding:0;font:inherit;text-decoration:underline;text-underline-offset:3px}
+@media (pointer:coarse){.linkbtn,.ls a,.empty a{display:inline-block;padding:10px 4px;margin:-10px -4px}}
