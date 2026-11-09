@@ -8,15 +8,16 @@ type Settings = { min_bid: number; min_increment: number; max_payment: number };
 type Quote = { rank: number; categoryRank: number; claimOne: number; min: number };
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
-export default function BidBox({ settings, claimOne, enabled }: { settings: Settings; claimOne: number; enabled: boolean }) {
+export default function BidBox({ settings, claimOne, enabled, fixedCategory = null }: { settings: Settings; claimOne: number; enabled: boolean; fixedCategory?: string | null }) {
   const router = useRouter();
   const [url, setUrl] = useState("");
-  const [category, setCategory] = useState<string | null>(null);
+  const [category, setCategory] = useState<string | null>(fixedCategory);
   const [amount, setAmount] = useState(claimOne);
   const [meta, setMeta] = useState<{ title: string; description: string; favicon: string | null; domain: string; existing?: { id: number; title: string } | null } | null>(null);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [iconOk, setIconOk] = useState(true);
-  const [quote, setQuote] = useState<Quote | null>(null);
+  // The starting amount is the price of #1, so the first render can already say #1.
+  const [quote, setQuote] = useState<Quote | null>({ rank: 1, categoryRank: 1, claimOne, min: settings.min_bid });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
@@ -67,12 +68,31 @@ export default function BidBox({ settings, claimOne, enabled }: { settings: Sett
   }
 
   const valid = Number.isInteger(amount) && amount >= settings.min_bid;
+  const rank = quote && valid ? (category ? quote.categoryRank : quote.rank) : null;
+  const shown = amount.toLocaleString("en-IN");
+  const width = Math.max(2, shown.length) * 0.56 + 0.2;
   return (
-    <div className="bidbox" id="claim">
-      <div className="row wrapm">
-        <input className="input" placeholder="yourwebsite.com" aria-label="Website link" inputMode="url" autoComplete="url"
+    <section className="claim" id="claim" aria-label="Claim a rank">
+      <h1>
+        Claim {rank ? `#${rank}` : "a rank"}{category ? <> in <span className="claim-cat">{category}</span></> : null}
+        <span className="claim-for"> for{" "}
+          <span className="claim-amt">
+            <button type="button" aria-label={`Decrease by ₹${settings.min_increment}`} onClick={() => step(-1)}>−</button>
+            <span className="cur">₹</span>
+            <input aria-label="Bid amount in rupees" inputMode="numeric" style={{ width: `${width}em` }}
+              value={Number.isFinite(amount) ? amount.toLocaleString("en-IN") : ""}
+              onChange={(e) => { const v = e.target.value.replace(/[^0-9]/g, ""); setAmount(v ? Math.min(Number(v), settings.max_payment * 10) : 0); }} />
+            <button type="button" aria-label={`Increase by ₹${settings.min_increment}`} onClick={() => step(1)}>+</button>
+          </span>
+        </span>
+      </h1>
+      <div className="claim-row">
+        <input className="input" placeholder="Your website, product or profile link" aria-label="Website link" inputMode="url" autoComplete="url"
           value={url} onChange={(e) => { setUrl(e.target.value); setMeta(null); }} onBlur={lookup} />
         <CategorySelect value={category} onChange={setCategory} />
+        <button className="btn gold" onClick={claim} disabled={busy || !enabled}>
+          {!enabled ? "Opening soon" : busy ? "Opening payment…" : "Claim rank"}
+        </button>
       </div>
       {loadingMeta && <div className="small muted">Reading your website…</div>}
       {meta && !meta.existing && (
@@ -85,24 +105,12 @@ export default function BidBox({ settings, claimOne, enabled }: { settings: Sett
         </div>
       )}
       {meta?.existing && <div className="quote">This website is already on the board. <a href={`/l/${meta.existing.id}`} style={{ color: "var(--link)" }}>Increase its bid</a></div>}
-      <div className="row flex">
-        <div className="stepper">
-          <button type="button" aria-label={`Decrease by ₹${settings.min_increment}`} onClick={() => step(-1)}>−</button>
-          <input aria-label="Bid amount in rupees" inputMode="numeric" value={Number.isFinite(amount) ? "₹" + amount.toLocaleString("en-IN") : "₹"}
-            onChange={(e) => { const v = e.target.value.replace(/[^0-9]/g, ""); setAmount(v ? Math.min(Number(v), settings.max_payment * 10) : 0); }} />
-          <button type="button" aria-label={`Increase by ₹${settings.min_increment}`} onClick={() => step(1)}>+</button>
-        </div>
-        <button className="btn gold" onClick={claim} disabled={busy || !enabled}>
-          {!enabled ? "Payments opening soon" : busy ? "Opening payment…" : quote && valid ? `Claim #${quote.rank} for ${inr(amount)}` : "Claim rank"}
-        </button>
-      </div>
-      <div className="quote muted" aria-live="polite">
-        {!valid ? `Minimum bid is ${inr(settings.min_bid)} · steps of ${inr(settings.min_increment)}`
-          : quote ? <>You&apos;d be <b>#{quote.rank}</b> overall{category ? <> · <b>#{quote.categoryRank}</b> in {category}</> : null} · #1 costs <b>{inr(quote.claimOne)}</b></> : `#1 costs ${inr(claimOne)}`}
+      <div className="quote" aria-live="polite">
+        {!valid ? `Minimum bid ${inr(settings.min_bid)}, steps of ${inr(settings.min_increment)}`
+          : quote ? <>#{quote.rank} overall{category ? <> · #{quote.categoryRank} in {category}</> : null} · #1 overall costs <b>{inr(quote.claimOne)}</b></> : `#1 costs ${inr(claimOne)}`}
       </div>
       {err && <div className="err" role="alert">{err}</div>}
       {ok && <div className="okmsg" role="status">{ok}</div>}
-      <div className="fine">UPI, cards and net banking via Razorpay. Your rank changes only after the payment is verified. <a href="/rules">How ranking works</a></div>
-    </div>
+    </section>
   );
 }

@@ -11,7 +11,7 @@ export default async function Leaderboards() {
     <>
       <h1 className="page-h">Leaderboards</h1>
       <p className="lede">All-time and today, across all 30 categories. Want a spot? <a href="/#claim" style={{ color: "var(--link)" }}>Claim a rank</a></p>
-      <div className="grid"><Board initial={rows} /><ActivityFeed items={activity} /></div>
+      <div className="grid"><Board initial={rows} controls /><aside className="side"><ActivityFeed items={activity} /></aside></div>
     </>
   );
 }

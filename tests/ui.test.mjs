@@ -50,13 +50,13 @@ async function page(width = 1280, height = 900, dark = false) {
 test("Dropdown lists all 30 categories in order, keyboard works", async () => {
   const p = await page();
   await p.goto(BASE + "/");
-  await p.click(".bidbox .dd > button");
-  const opts = await p.$$eval(".bidbox .dd li", (els) => els.map((e) => e.textContent.trim()));
+  await p.click(".claim .dd > button");
+  const opts = await p.$$eval(".claim .dd li", (els) => els.map((e) => e.textContent.trim()));
   assert.equal(opts.length, 30);
   assert.match(opts[0], /AI Agents & Infrastructure$/);
   assert.match(opts[29], /Other$/);
   await p.keyboard.press("ArrowDown"); await p.keyboard.press("Enter");
-  assert.match(await p.textContent(".bidbox .dd > button"), /SEO & AI Visibility/);
+  assert.match(await p.textContent(".claim .dd > button"), /SEO & AI Visibility/);
   assert.deepEqual(p.errors, []);
   await p.context().close();
 });
@@ -64,15 +64,16 @@ test("Dropdown lists all 30 categories in order, keyboard works", async () => {
 test("Claim flow: link → category → bid → pay → verified → listed", async () => {
   const p = await page(390, 844);
   await p.goto(BASE + "/");
-  assert.match(await p.textContent("h1"), /Claim #1 for ₹99/);
+  assert.match(await p.textContent("h1"), /Claim #1/);
+  assert.equal(await p.inputValue('input[aria-label="Bid amount in rupees"]'), "99");
   await p.fill('input[aria-label="Website link"]', "mytool.example.in");
-  await p.click(".bidbox .dd > button");
-  await p.click('.bidbox .dd li:has-text("Developer Tools")');
+  await p.click(".claim .dd > button");
+  await p.click('.claim .dd li:has-text("Developer Tools")');
   await p.click('button[aria-label^="Increase by"]');
-  assert.match(await p.inputValue('input[aria-label="Bid amount in rupees"]'), /₹109/);
-  await p.waitForFunction(() => /Claim #1 for ₹109/.test(document.querySelector(".btn.gold").textContent));
+  assert.equal(await p.inputValue('input[aria-label="Bid amount in rupees"]'), "109");
+  await p.waitForFunction(() => /Claim #1 in Developer Tools/.test(document.querySelector(".claim h1").textContent));
   if (SHOTS) await p.screenshot({ path: `${SHOTS}/ui_claim_mobile.png`, fullPage: true });
-  await p.click(".btn.gold");
+  await p.click(".claim .btn.gold");
   await p.waitForURL(/\/l\/\d+\?new=1/, { timeout: 15000 });
   assert.match(await p.textContent("body"), /Payment verified/);
   assert.match(await p.textContent("h1"), /mytool\.example\.in/);
@@ -113,7 +114,7 @@ test("No horizontal scroll and no errors at every screen size, light and dark", 
         await p.goto(BASE + path);
         const sw = await p.evaluate(() => document.documentElement.scrollWidth);
         const culprits = sw > w ? await p.evaluate((w) => [...document.querySelectorAll("body *")]
-          .filter((e) => e.getBoundingClientRect().right > w + 0.5 && !e.closest(".nav,.tscroll"))
+          .filter((e) => e.getBoundingClientRect().right > w + 0.5 && !e.closest(".nav,.tscroll,.pills"))
           .slice(0, 5).map((e) => `${e.tagName}.${e.className}`), w) : [];
         assert.ok(sw <= w, `${path} overflows at ${w}px (${sw}px)${dark ? " dark" : ""}: ${culprits.join(", ")}`);
       }
